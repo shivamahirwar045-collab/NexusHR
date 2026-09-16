@@ -1,0 +1,58 @@
+import { NotificationItem } from "@/types";
+
+export const initialNotifications: NotificationItem[] = [
+  {
+    id: "notif-1",
+    title: "New Leave Application",
+    description: "Priya Patel applied for 5 days Annual Leave starting Sep 22, 2026.",
+    timestamp: "10 minutes ago",
+    type: "leave",
+    isRead: false,
+    actionUrl: "/dashboard/leave",
+  },
+  {
+    id: "notif-2",
+    title: "Payroll Cycle Ready for Review",
+    description: "September 2026 payroll calculation is pending review and authorization.",
+    timestamp: "1 hour ago",
+    type: "payroll",
+    isRead: false,
+    actionUrl: "/dashboard/payroll",
+  },
+  {
+    id: "notif-3",
+    title: "Attendance Anomaly Detected",
+    description: "Lucas Mendoza marked absent without advance approved leave.",
+    timestamp: "3 hours ago",
+    type: "attendance",
+    isRead: false,
+    actionUrl: "/dashboard/attendance",
+  },
+  {
+    id: "notif-4",
+    title: "Leave Request Approved",
+    description: "Sophie Dubois's Medical Leave (Sep 15 - Sep 18) was approved by Elena Rostova.",
+    timestamp: "1 day ago",
+    type: "leave",
+    isRead: true,
+    actionUrl: "/dashboard/leave",
+  },
+  {
+    id: "notif-5",
+    title: "New Employee Onboarded",
+    description: "Benjamin Foster has completed initial HR documentation setup.",
+    timestamp: "2 days ago",
+    type: "employee",
+    isRead: true,
+    actionUrl: "/dashboard/employees",
+  },
+  {
+    id: "notif-6",
+    title: "Quarterly Audit Report Generated",
+    description: "Q3 Automated compliance and attendance report ready for download.",
+    timestamp: "3 days ago",
+    type: "system",
+    isRead: true,
+    actionUrl: "/dashboard/reports",
+  },
+];
