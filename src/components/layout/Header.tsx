@@ -344,30 +344,36 @@ export function Header() {
       {/* Ask AI Copilot Side-Drawer (Slide-over panel from right) */}
       {/* ========================================================= */}
       {showAiModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
-          <div className="w-full max-w-md sm:max-w-lg bg-card border-l border-border h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-300 text-card-foreground">
+        <div
+          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex justify-end animate-in fade-in duration-200"
+          onClick={() => setShowAiModal(false)}
+        >
+          <div
+            className="w-full max-w-md sm:max-w-lg bg-white dark:bg-[#0d1117] border-l border-zinc-200 dark:border-zinc-800 h-screen flex flex-col shadow-2xl animate-in slide-in-from-right duration-300 text-zinc-900 dark:text-zinc-100 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
             
             {/* Drawer Header */}
-            <div className="flex items-center justify-between p-5 border-b border-border bg-muted/20">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#161b22] shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
-                  <Bot className="h-4 w-4" />
+                <div className="h-9 w-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs">
+                  <Bot className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-foreground text-sm flex items-center gap-1.5">
+                  <h3 className="font-bold text-zinc-900 dark:text-white text-sm sm:text-base flex items-center gap-2">
                     NexusHR AI Copilot
-                    <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.2 text-[9px] font-mono font-bold">
+                    <span className="rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2 py-0.5 text-[9px] font-mono font-extrabold tracking-wide">
                       LIVE
                     </span>
                   </h3>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
                     Context: {selectedProject} ({selectedOrg})
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowAiModal(false)}
-                className="text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+                className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-zinc-200/60 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
                 aria-label="Close Ask AI panel"
               >
                 <X className="h-4 w-4" />
@@ -375,7 +381,7 @@ export function Header() {
             </div>
 
             {/* Suggested Quick Prompts */}
-            <div className="p-4 border-b border-border/50 bg-background/50 flex flex-wrap gap-2">
+            <div className="p-3.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-[#131720] flex flex-wrap gap-2 shrink-0">
               {[
                 "Who is on leave today?",
                 "Calculate monthly payroll run",
@@ -385,7 +391,7 @@ export function Header() {
                 <button
                   key={pIdx}
                   onClick={() => handleSendAi(undefined, prompt)}
-                  className="text-[11px] px-2.5 py-1 rounded-full border border-border bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors text-left cursor-pointer"
+                  className="text-[11px] px-3 py-1 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-all text-left cursor-pointer shadow-2xs font-medium"
                 >
                   {prompt}
                 </button>
@@ -393,42 +399,42 @@ export function Header() {
             </div>
 
             {/* Chat message thread */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-white dark:bg-[#0d1117]">
               {aiResponses.map((res, i) => (
                 <div
                   key={i}
                   className={cn(
-                    "p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed",
+                    "p-3.5 rounded-2xl text-xs sm:text-[13px] leading-relaxed",
                     res.role === "assistant"
-                      ? "bg-muted/40 text-foreground border border-border/70 mr-4"
-                      : "bg-primary text-primary-foreground ml-6 shadow-md"
+                      ? "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700/60 mr-4 shadow-2xs"
+                      : "bg-primary text-white ml-6 shadow-md"
                   )}
                 >
                   <p>{res.text}</p>
                 </div>
               ))}
               {isAiThinking && (
-                <div className="p-3.5 rounded-2xl bg-muted/40 text-muted-foreground text-xs flex items-center gap-2 border border-border/60">
-                  <Sparkles className="h-4 w-4 animate-spin text-emerald-400" />
+                <div className="p-3.5 rounded-2xl bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 text-xs flex items-center gap-2 border border-zinc-200 dark:border-zinc-700">
+                  <Sparkles className="h-4 w-4 animate-spin text-emerald-500" />
                   <span>Analyzing workforce schema and computing metrics...</span>
                 </div>
               )}
             </div>
 
             {/* Prompt input at bottom */}
-            <form onSubmit={(e) => handleSendAi(e)} className="p-4 border-t border-border bg-card">
+            <form onSubmit={(e) => handleSendAi(e)} className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#161b22] shrink-0">
               <div className="relative flex items-center">
                 <input
                   type="text"
                   value={aiQuestion}
                   onChange={(e) => setAiQuestion(e.target.value)}
                   placeholder="Ask about queries, branches, or team stats..."
-                  className="w-full h-11 px-4 pr-12 rounded-xl border border-border bg-background text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-inner"
+                  className="w-full h-11 px-4 pr-12 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary shadow-inner"
                 />
                 <button
                   type="submit"
                   disabled={!aiQuestion.trim() || isAiThinking}
-                  className="absolute right-2 p-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-all cursor-pointer"
+                  className="absolute right-2 p-2 rounded-lg bg-primary text-white disabled:opacity-40 hover:bg-primary/90 transition-all cursor-pointer shadow-xs"
                   aria-label="Send query"
                 >
                   <Send className="h-3.5 w-3.5" />
