@@ -20,9 +20,6 @@ import {
   FileText,
   Lock,
   ArrowRight,
-  Bot,
-  Send,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -45,44 +42,7 @@ function DatabaseCylinder({ active }: { active?: boolean }) {
 
 export function NeonNavbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [showAiModal, setShowAiModal] = useState(false);
-  const [aiQuestion, setAiQuestion] = useState("");
-  const [isAiThinking, setIsAiThinking] = useState(false);
-  const [aiResponses, setAiResponses] = useState<Array<{ role: "assistant" | "user"; text: string }>>([
-    {
-      role: "assistant",
-      text: "Hi! I am the NexusHR AI Copilot. Ask me about workforce branch environments, autoscaling limits, multi-state payroll, or SOC2 compliance!",
-    },
-  ]);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const handleSendAi = (e?: React.FormEvent, customQuery?: string) => {
-    if (e) e.preventDefault();
-    const query = (customQuery || aiQuestion).trim();
-    if (!query) return;
-
-    setAiResponses((prev) => [...prev, { role: "user", text: query }]);
-    setAiQuestion("");
-    setIsAiThinking(true);
-
-    setTimeout(() => {
-      let answer = "NexusHR provides a serverless workforce infrastructure with instant zero-copy database branching, automated multi-state payroll processing, and continuous SOC2 compliance.";
-      const lower = query.toLowerCase();
-
-      if (lower.includes("branch") || lower.includes("environment")) {
-        answer = "Workforce branching uses Copy-on-Write snapshots created in <850ms. You can test payroll simulations or acquisitions on ephemeral branches without affecting live production data.";
-      } else if (lower.includes("payroll") || lower.includes("pay") || lower.includes("salary")) {
-        answer = "The Async Payroll Engine processes 12,000+ employees in under 1.2 seconds across all 50 US states and 14 global currencies with direct deposit API integration.";
-      } else if (lower.includes("scale") || lower.includes("autoscal") || lower.includes("cu")) {
-        answer = "Compute units (CU) scale automatically from 0.25 to 64 CU based on shift clock-ins and payroll run loads. When idle, workers scale to zero to save up to 88% in infrastructure costs.";
-      } else if (lower.includes("soc2") || lower.includes("hipaa") || lower.includes("security") || lower.includes("complian")) {
-        answer = "NexusHR is SOC2 Type II, HIPAA, and ISO 27001 certified with 256-bit AES encryption at rest, TLS 1.3 in transit, and immutable cryptographically signed audit logs.";
-      }
-
-      setAiResponses((prev) => [...prev, { role: "assistant", text: answer }]);
-      setIsAiThinking(false);
-    }, 600);
-  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -222,16 +182,6 @@ export function NeonNavbar() {
 
           {/* Theme Switcher Toggle */}
           <ThemeToggle />
-
-          {/* Ask AI Pill Button */}
-          <button
-            type="button"
-            onClick={() => setShowAiModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-all shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
-            <span>Ask AI</span>
-          </button>
 
           {/* Log In Button */}
           <Link href="/login">
@@ -674,109 +624,6 @@ export function NeonNavbar() {
                 </Link>
               </div>
             </div>
-
-          </div>
-        </div>
-      )}
-      {/* ========================================================= */}
-      {/* Ask AI Side Drawer (Slide-Over Panel) */}
-      {/* ========================================================= */}
-      {showAiModal && (
-        <div
-          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex justify-end animate-in fade-in duration-200"
-          onClick={() => setShowAiModal(false)}
-        >
-          <div
-            className="w-full max-w-md sm:max-w-lg bg-white dark:bg-[#0d1117] border-l border-zinc-200 dark:border-zinc-800 h-screen flex flex-col shadow-2xl animate-in slide-in-from-right duration-300 text-zinc-900 dark:text-zinc-100 overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#161b22] shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="h-9 w-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs">
-                  <Bot className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-zinc-900 dark:text-white text-sm sm:text-base flex items-center gap-2">
-                    NexusHR AI Copilot
-                    <span className="rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2 py-0.5 text-[9px] font-mono font-extrabold tracking-wide">
-                      LIVE
-                    </span>
-                  </h3>
-                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                    Instant answers on architecture, branches & payroll
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowAiModal(false)}
-                className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-zinc-200/60 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                aria-label="Close Ask AI panel"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Suggested Quick Prompts */}
-            <div className="p-3.5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-[#131720] flex flex-wrap gap-2 shrink-0">
-              {[
-                "How do workspace branches work?",
-                "Explain autoscaling to zero",
-                "What are the SOC2 compliance specs?",
-              ].map((prompt, pIdx) => (
-                <button
-                  key={pIdx}
-                  onClick={() => handleSendAi(undefined, prompt)}
-                  className="text-[11px] px-3 py-1 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:text-black dark:hover:text-white transition-all text-left cursor-pointer shadow-2xs font-medium"
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
-
-            {/* Chat Messages Body */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-white dark:bg-[#0d1117]">
-              {aiResponses.map((res, i) => (
-                <div
-                  key={i}
-                  className={`p-3.5 rounded-2xl text-xs sm:text-[13px] leading-relaxed ${
-                    res.role === "assistant"
-                      ? "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700/60 mr-4 shadow-2xs"
-                      : "bg-primary text-white ml-6 shadow-md"
-                  }`}
-                >
-                  {res.text}
-                </div>
-              ))}
-              {isAiThinking && (
-                <div className="p-3.5 rounded-2xl bg-zinc-100 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 text-xs flex items-center gap-2 border border-zinc-200 dark:border-zinc-700">
-                  <Sparkles className="h-4 w-4 animate-spin text-emerald-500" />
-                  <span>Analyzing architecture docs...</span>
-                </div>
-              )}
-            </div>
-
-            {/* Input Form at Bottom */}
-            <form onSubmit={(e) => handleSendAi(e)} className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#161b22] shrink-0">
-              <div className="relative flex items-center">
-                <input
-                  type="text"
-                  value={aiQuestion}
-                  onChange={(e) => setAiQuestion(e.target.value)}
-                  placeholder="Ask about queries, branches, or team stats..."
-                  className="w-full h-11 px-4 pr-12 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary shadow-inner"
-                />
-                <button
-                  type="submit"
-                  disabled={!aiQuestion.trim() || isAiThinking}
-                  className="absolute right-2 p-2 rounded-lg bg-primary text-white disabled:opacity-40 hover:bg-primary/90 transition-all cursor-pointer shadow-xs"
-                  aria-label="Send query"
-                >
-                  <Send className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </form>
 
           </div>
         </div>
