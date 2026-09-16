@@ -70,25 +70,34 @@ export function Header() {
     router.push("/login");
   };
 
-  const handleSendAi = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!aiQuestion.trim()) return;
+  const handleSendAi = (e?: React.FormEvent, customQuery?: string) => {
+    if (e) e.preventDefault();
+    const query = (customQuery || aiQuestion).trim();
+    if (!query) return;
 
-    const userQ = aiQuestion;
+    setAiResponses((prev) => [...prev, { role: "user", text: query }]);
     setAiQuestion("");
-    setAiResponses((prev) => [...prev, { role: "user", text: userQ }]);
     setIsAiThinking(true);
 
     setTimeout(() => {
       setIsAiThinking(false);
-      setAiResponses((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          text: `Here is the analysis for "${userQ}": The current production branch has 0 latency spikes, all 8 computes are healthy, and auto-scaling pool is operating at 99.98% efficiency.`,
-        },
-      ]);
-    }, 800);
+      let answer = `Analysis for "${query}": Workspace cluster is fully synchronized. All 8 worker pods are active with 0 latency spikes and 99.99% sync SLA.`;
+      const lower = query.toLowerCase();
+
+      if (lower.includes("leave") || lower.includes("pto") || lower.includes("absent")) {
+        answer = "Currently, 1 employee (Priya Patel) is on approved PTO today. Attendance rate is 75% with 9 active check-ins recorded.";
+      } else if (lower.includes("payroll") || lower.includes("salary") || lower.includes("pay")) {
+        answer = "Current Monthly Payroll forecast is $97,349. Next batch execution is scheduled on time with automated direct deposits and tax withholdings verified.";
+      } else if (lower.includes("branch") || lower.includes("environment")) {
+        answer = "Active branch: `production` (protected). You can create zero-copy staging branches in <850ms to run dry-run payroll simulations.";
+      } else if (lower.includes("soc2") || lower.includes("audit") || lower.includes("security")) {
+        answer = "Security status: SOC2 Type II compliance active. All recent administrator actions and employee records are cryptographically logged.";
+      } else if (lower.includes("department") || lower.includes("headcount")) {
+        answer = "Headcount breakdown: Engineering (42), Product & UI/UX (16), Sales & Enterprise (28), People & HR (9). Total: 95 staff.";
+      }
+
+      setAiResponses((prev) => [...prev, { role: "assistant", text: answer }]);
+    }, 600);
   };
 
   return (
@@ -332,74 +341,101 @@ export function Header() {
       </div>
 
       {/* ========================================================= */}
-      {/* Ask AI Copilot Modal */}
+      {/* Ask AI Copilot Side-Drawer (Slide-over panel from right) */}
       {/* ========================================================= */}
       {showAiModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-card border border-border rounded-2xl max-w-lg w-full p-6 shadow-2xl flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-border mb-4">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                  <Bot className="h-5 w-5" />
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
+          <div className="w-full max-w-md sm:max-w-lg bg-card border-l border-border h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-300 text-card-foreground">
+            
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between p-5 border-b border-border bg-muted/20">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
+                  <Bot className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-foreground text-sm sm:text-base">
-                    NexusHR AI Assistant
+                  <h3 className="font-bold text-foreground text-sm flex items-center gap-1.5">
+                    NexusHR AI Copilot
+                    <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.2 text-[9px] font-mono font-bold">
+                      LIVE
+                    </span>
                   </h3>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground">
                     Context: {selectedProject} ({selectedOrg})
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setShowAiModal(false)}
-                className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-muted"
+                className="text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+                aria-label="Close Ask AI panel"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
+            {/* Suggested Quick Prompts */}
+            <div className="p-4 border-b border-border/50 bg-background/50 flex flex-wrap gap-2">
+              {[
+                "Who is on leave today?",
+                "Calculate monthly payroll run",
+                "Show department headcount",
+                "Check SOC2 audit compliance",
+              ].map((prompt, pIdx) => (
+                <button
+                  key={pIdx}
+                  onClick={() => handleSendAi(undefined, prompt)}
+                  className="text-[11px] px-2.5 py-1 rounded-full border border-border bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors text-left cursor-pointer"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+
             {/* Chat message thread */}
-            <div className="flex-1 overflow-y-auto space-y-3 pr-1 min-h-[220px] max-h-[360px] mb-4">
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
               {aiResponses.map((res, i) => (
                 <div
                   key={i}
                   className={cn(
-                    "p-3 rounded-xl text-xs sm:text-[13px] leading-relaxed",
+                    "p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed",
                     res.role === "assistant"
-                      ? "bg-muted/50 text-foreground border border-border/60"
-                      : "bg-primary text-primary-foreground ml-8"
+                      ? "bg-muted/40 text-foreground border border-border/70 mr-4"
+                      : "bg-primary text-primary-foreground ml-6 shadow-md"
                   )}
                 >
                   <p>{res.text}</p>
                 </div>
               ))}
               {isAiThinking && (
-                <div className="p-3 rounded-xl bg-muted/50 text-muted-foreground text-xs flex items-center gap-2">
+                <div className="p-3.5 rounded-2xl bg-muted/40 text-muted-foreground text-xs flex items-center gap-2 border border-border/60">
                   <Sparkles className="h-4 w-4 animate-spin text-emerald-400" />
-                  <span>Analyzing schema and computing metrics...</span>
+                  <span>Analyzing workforce schema and computing metrics...</span>
                 </div>
               )}
             </div>
 
-            {/* Prompt input */}
-            <form onSubmit={handleSendAi} className="relative flex items-center gap-2">
-              <input
-                type="text"
-                value={aiQuestion}
-                onChange={(e) => setAiQuestion(e.target.value)}
-                placeholder="Ask about queries, branches, or team stats..."
-                className="w-full h-10 px-3.5 pr-10 rounded-xl border border-border/80 bg-background text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-              />
-              <button
-                type="submit"
-                disabled={!aiQuestion.trim()}
-                className="absolute right-2 p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-40 transition-opacity cursor-pointer"
-              >
-                <Send className="h-3.5 w-3.5" />
-              </button>
+            {/* Prompt input at bottom */}
+            <form onSubmit={(e) => handleSendAi(e)} className="p-4 border-t border-border bg-card">
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  value={aiQuestion}
+                  onChange={(e) => setAiQuestion(e.target.value)}
+                  placeholder="Ask about queries, branches, or team stats..."
+                  className="w-full h-11 px-4 pr-12 rounded-xl border border-border bg-background text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-inner"
+                />
+                <button
+                  type="submit"
+                  disabled={!aiQuestion.trim() || isAiThinking}
+                  className="absolute right-2 p-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-all cursor-pointer"
+                  aria-label="Send query"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </form>
+
           </div>
         </div>
       )}
