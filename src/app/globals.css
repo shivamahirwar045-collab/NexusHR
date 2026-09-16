@@ -355,6 +355,25 @@
   box-shadow: 0 0 50px -10px rgba(99, 102, 241, 0.25), 0 0 25px -10px rgba(168, 85, 247, 0.18);
 }
 
+/* Infinite Marquee Animation for Neon Logo Strip */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
 /* Respect user preference for reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .animate-float-slow,

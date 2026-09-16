@@ -2,7 +2,18 @@
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
+import { NeonAnnouncementBar } from "@/components/landing/NeonAnnouncementBar";
 import { NeonNavbar } from "@/components/landing/NeonNavbar";
+import { NeonHeroSection } from "@/components/landing/NeonHeroSection";
+import { NeonLogoMarquee } from "@/components/landing/NeonLogoMarquee";
+import { NeonAutoscalingDemo } from "@/components/landing/NeonAutoscalingDemo";
+import { NeonBranchingVisualizer } from "@/components/landing/NeonBranchingVisualizer";
+import { NeonCodePlayground } from "@/components/landing/NeonCodePlayground";
+import { NeonEnterpriseBento } from "@/components/landing/NeonEnterpriseBento";
+import { NeonCtaBanner } from "@/components/landing/NeonCtaBanner";
+import { NeonFooter } from "@/components/landing/NeonFooter";
+import { HeroMotionBackground } from "@/components/home/HeroMotionBackground";
+import { HeroLiveDashboard } from "@/components/home/HeroLiveDashboard";
 import {
   Sparkles,
   Users,
@@ -22,8 +33,6 @@ import {
   Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HeroMotionBackground } from "@/components/home/HeroMotionBackground";
-import { HeroLiveDashboard } from "@/components/home/HeroLiveDashboard";
 
 export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -41,7 +50,7 @@ export default function LandingPage() {
     };
 
     const observer = new IntersectionObserver(observerCallback, {
-      threshold: 0.12,
+      threshold: 0.1,
       rootMargin: "0px 0px -40px 0px",
     });
 
@@ -51,7 +60,7 @@ export default function LandingPage() {
     return () => observer.disconnect();
   }, []);
 
-  // Smooth mouse move handler for hero parallax and glow follower
+  // Smooth mouse move handler for hero parallax
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!heroRef.current) return;
     const rect = heroRef.current.getBoundingClientRect();
@@ -96,253 +105,107 @@ export default function LandingPage() {
   const steps = [
     {
       number: "01",
-      title: "Create Your Company Account",
-      description: "Set up your organization workspace, invite administrators, and configure custom department hierarchies in under 3 minutes.",
+      title: "Create Your Company Workspace",
+      description: "Set up your organization in seconds with multi-region replication and instant branchable database environments.",
     },
     {
       number: "02",
-      title: "Onboard Your Team Members",
-      description: "Add employees manually with detailed profile wizards or import your full roster with automated validation.",
+      title: "Sync Employees & SAML/SSO",
+      description: "Automate identity provisioning with Okta, Azure AD, Google Workspace, or custom SCIM/REST webhooks.",
     },
     {
       number: "03",
-      title: "Manage Workforce Seamlessly",
-      description: "Review attendance, approve leave requests with one click, run error-free payroll, and track growth analytics in real-time.",
+      title: "Automate Payroll & Compliance",
+      description: "Execute zero-error payroll batches across 50 states with branchable dry-run simulations and automated tax filings.",
     },
   ];
-
-  const benefits = [
-    {
-      title: "Save 75% Administrative Time",
-      description: "Eliminate messy spreadsheets and endless email chains. Automate repetitive HR workflows and approval chains.",
-      stat: "14 hrs/wk",
-      statLabel: "Saved per HR Manager",
-    },
-    {
-      title: "100% Payroll & Tax Precision",
-      description: "Automated gross-to-net calculations, tax withholdings, and bonus allocations with zero manual math errors.",
-      stat: "99.9%",
-      statLabel: "Calculation Accuracy",
-    },
-    {
-      title: "Unified Workforce Visibility",
-      description: "Empower managers and executives with instant clarity on employee status, attendance rates, and team budgets.",
-      stat: "Real-time",
-      statLabel: "Attendance & Headcount Sync",
-    },
-  ];
-
-  const pricingTiers = [
-    {
-      name: "Starter",
-      price: "$29",
-      period: "/month",
-      description: "Perfect for growing startups and small businesses up to 25 employees.",
-      features: [
-        "Up to 25 active employees",
-        "Employee directory & profiles",
-        "Attendance tracking & calendar",
-        "Standard leave management",
-        "Basic monthly payroll",
-        "Email support",
-      ],
-      popular: false,
-      ctaText: "Start 14-Day Free Trial",
-      href: "/register",
-    },
-    {
-      name: "Professional",
-      price: "$89",
-      period: "/month",
-      description: "Built for scaling companies needing advanced approvals and custom reports.",
-      features: [
-        "Up to 100 active employees",
-        "Everything in Starter, plus:",
-        "Multi-tier leave approval chains",
-        "Custom compensation & bonus rules",
-        "Automated PDF payslip generation",
-        "Audit log history & export",
-        "Priority 24/7 support",
-      ],
-      popular: true,
-      ctaText: "Start 14-Day Free Trial",
-      href: "/register",
-    },
-    {
-      name: "Enterprise",
-      price: "$249",
-      period: "/month",
-      description: "For large organizations demanding custom integrations and dedicated SLA.",
-      features: [
-        "Unlimited employee headcount",
-        "Everything in Professional, plus:",
-        "Custom role-based permissions",
-        "Dedicated account manager",
-        "Custom API & webhook integrations",
-        "Single Sign-On (SSO / SAML)",
-        "99.99% Uptime SLA guarantee",
-      ],
-      popular: false,
-      ctaText: "Contact Enterprise Sales",
-      href: "/register",
-    },
-  ];
-
-  // Calculated subtle parallax tilt for hero card
-  const tiltX = isHoveringHero ? (mousePos.y - 0.5) * -6 : 0;
-  const tiltY = isHoveringHero ? (mousePos.x - 0.5) * 6 : 0;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20 overflow-x-hidden">
-      {/* Exact Neon Header with Megamenu Dropdowns */}
+      {/* 1. Top Announcement Bar */}
+      <NeonAnnouncementBar />
+
+      {/* 2. Glassmorphic Sticky Header with Mega Dropdowns */}
       <NeonNavbar />
 
+      {/* 3. Neon 5-Card Media Grid Hero */}
+      <NeonHeroSection />
 
-      {/* Hero Section with Cinematic Motion Background */}
+      {/* 4. Infinite Enterprise Logo Ticker */}
+      <NeonLogoMarquee />
+
+      {/* 5. Live Product Interactive Scene & 3D Dashboard */}
       <section
         ref={heroRef}
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setIsHoveringHero(true)}
         onMouseLeave={() => setIsHoveringHero(false)}
-        className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28"
+        className="relative py-24 overflow-hidden border-t border-border/40 bg-muted/5"
       >
-        {/* Neon-Style Cinematic Particle & Constellation Motion Layer */}
         <HeroMotionBackground />
 
-        {/* Ambient Gradient Mesh Overlays */}
-        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-          <div
-            className="animate-mesh-1 absolute -top-24 left-1/2 -translate-x-1/2 h-[450px] w-[600px] sm:w-[800px] rounded-full bg-gradient-to-tr from-primary/20 via-indigo-500/15 to-purple-600/20 blur-[100px] dark:from-primary/25 dark:via-indigo-600/20 dark:to-purple-700/25"
-          />
-          <div
-            className="animate-mesh-2 absolute top-1/3 -left-32 h-[380px] w-[450px] rounded-full bg-gradient-to-br from-indigo-500/15 via-blue-500/10 to-teal-500/15 blur-[90px] dark:from-indigo-600/20 dark:to-cyan-500/15"
-          />
-          <div
-            className="animate-mesh-3 absolute top-1/2 -right-32 h-[400px] w-[480px] rounded-full bg-gradient-to-bl from-purple-500/15 via-pink-500/10 to-primary/15 blur-[90px] dark:from-purple-600/20 dark:to-primary/20"
-          />
-
-          {/* Mouse Interactive Ambient Spotlight */}
-          <div
-            className="absolute h-[500px] w-[500px] rounded-full bg-primary/10 blur-[110px] transition-transform duration-700 ease-out dark:bg-primary/15"
-            style={{
-              transform: `translate3d(${mousePos.x * 100}%, ${mousePos.y * 70}%, 0) translate(-50%, -50%)`,
-            }}
-          />
-
-          {/* Subtle Grid Pattern Overlay */}
-          <div
-            className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_35%,#000_70%,transparent_100%)]"
-          />
-        </div>
-
-        <div className="container mx-auto px-4 sm:px-6 text-center">
-          {/* Badge Announcement */}
-          <div className="inline-flex items-center gap-2 rounded-full border bg-muted/60 px-3.5 py-1 text-xs font-semibold text-foreground mb-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-muted/90 hover:border-primary/30">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            Next-Gen Workforce Management Suite 2.0
-            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5" />
-          </div>
-
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl md:text-7xl max-w-4xl mx-auto leading-tight sm:leading-none">
-            Manage Your Workforce. <br />
-            <span className="bg-gradient-to-r from-primary via-indigo-500 to-purple-600 bg-clip-text text-transparent">
-              Simplify Your Business.
+        <div className="max-w-[1400px] mx-auto px-6 sm:px-12 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="text-[11px] font-mono font-bold tracking-widest text-primary uppercase px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+              LIVE PLATFORM EXPERIENCE
             </span>
-          </h1>
-
-          <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto font-normal leading-relaxed">
-            The all-in-one B2B employee management SaaS platform built for fast-growing companies.
-            Streamline employee profiles, attendance tracking, leave requests, and payroll with zero complexity.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/register">
-              <Button size="lg" className="w-full sm:w-auto font-semibold gap-2 shadow-lg shadow-primary/25 h-12 px-8 transition-all duration-300 hover:shadow-primary/40 hover:scale-[1.02] active:scale-98">
-                Start Free Trial
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </Button>
-            </Link>
-            <Link href="/dashboard">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto font-semibold gap-2 h-12 px-8 backdrop-blur-sm transition-all duration-300 hover:bg-muted/80 hover:scale-[1.02] active:scale-98">
-                <BarChart3 className="h-4 w-4 text-primary" />
-                Explore Live Demo
-              </Button>
-            </Link>
-          </div>
-
-          {/* Guarantee Badges */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5 transition-colors hover:text-foreground">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500" /> No credit card required
-            </span>
-            <span className="flex items-center gap-1.5 transition-colors hover:text-foreground">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Instant 2-minute setup
-            </span>
-            <span className="flex items-center gap-1.5 transition-colors hover:text-foreground">
-              <CheckCircle2 className="h-4 w-4 text-emerald-500" /> SOC2 compliant & encrypted
-            </span>
-          </div>
-
-          {/* Living Dashboard Preview Visual with 3D Float, Live Telemetry Wave, and Indicators */}
-          <HeroLiveDashboard tiltX={tiltX} tiltY={tiltY} />
-        </div>
-      </section>
-
-
-      {/* Trusted By Section with Scroll Reveal */}
-      <section className="reveal-on-scroll border-y bg-muted/30 py-12 backdrop-blur-sm">
-        <div className="container mx-auto px-4 sm:px-6 text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Trusted by forward-thinking HR teams and 500+ modern companies
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-            <div className="flex items-center gap-2 text-lg font-bold transition-transform hover:scale-105">
-              <Building className="h-5 w-5 text-primary" /> ApexGlobal
-            </div>
-            <div className="flex items-center gap-2 text-lg font-bold transition-transform hover:scale-105">
-              <Zap className="h-5 w-5 text-amber-500" /> PulseLogic
-            </div>
-            <div className="flex items-center gap-2 text-lg font-bold transition-transform hover:scale-105">
-              <Layers className="h-5 w-5 text-indigo-500" /> HyperScale Labs
-            </div>
-            <div className="flex items-center gap-2 text-lg font-bold transition-transform hover:scale-105">
-              <Lock className="h-5 w-5 text-emerald-500" /> TrustGuard Inc
-            </div>
-            <div className="flex items-center gap-2 text-lg font-bold transition-transform hover:scale-105">
-              <Clock className="h-5 w-5 text-purple-500" /> ChronoFlow
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Grid with Scroll Reveal */}
-      <section id="features" className="py-20 md:py-28 relative">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="reveal-on-scroll text-center max-w-3xl mx-auto">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-primary">
-              Comprehensive Capabilities
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground mt-4 mb-4">
+              A unified command center <br />
+              <span className="text-muted-foreground">for every HR & payroll workflow.</span>
             </h2>
-            <p className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Everything Your Organization Needs to Scale Workforce Operations
-            </p>
-            <p className="mt-4 text-base text-muted-foreground">
-              Designed from the ground up to replace fragmented HR tools with a single unified platform.
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              Explore live analytics, attendance streaming, and automated payroll queues updated continuously with sub-second latency.
             </p>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, idx) => (
+          {/* Interactive Live Dashboard Card */}
+          <div className="max-w-5xl mx-auto">
+            <HeroLiveDashboard
+              tiltX={isHoveringHero ? (mousePos.y - 0.5) * -4 : 0}
+              tiltY={isHoveringHero ? (mousePos.x - 0.5) * 4 : 0}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Autoscaling & Workload Simulation Slider */}
+      <NeonAutoscalingDemo />
+
+      {/* 7. Zero-Copy Workforce Branching Visualizer */}
+      <NeonBranchingVisualizer />
+
+      {/* 8. Developer Multi-Language Code Playground */}
+      <NeonCodePlayground />
+
+      {/* 9. Core Features Bento Grid */}
+      <section className="reveal-on-scroll py-24 border-t border-border/60">
+        <div className="max-w-[1400px] mx-auto px-6 sm:px-12">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-[11px] font-mono font-bold tracking-widest text-emerald-500 uppercase px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+              COMPLETE CAPABILITIES
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground mt-4 mb-4">
+              Everything high-growth teams need to operate.
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              A unified system connecting employee directories, time tracking, PTO approvals, payroll disbursements, and enterprise reporting.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feat, idx) => (
               <div
-                key={feature.title}
-                className={`reveal-on-scroll stagger-${(idx % 3) + 1} rounded-xl border bg-card p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:border-primary/40 hover:-translate-y-1 group`}
+                key={idx}
+                className="group relative rounded-2xl border border-border/70 bg-card/60 p-7 shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary/50 hover:-translate-y-1"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted group-hover:bg-primary/10 transition-colors duration-300 mb-5 group-hover:scale-110">
-                  {feature.icon}
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-muted/60 border border-border transition-colors group-hover:bg-primary/10">
+                  {feat.icon}
                 </div>
-                <h3 className="text-lg font-bold text-foreground transition-colors group-hover:text-primary">{feature.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                  {feature.description}
+                <h3 className="text-base font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                  {feat.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  {feat.description}
                 </p>
               </div>
             ))}
@@ -350,246 +213,47 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* How It Works Section with Scroll Reveal */}
-      <section id="how-it-works" className="reveal-on-scroll py-20 bg-muted/30 border-y">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-primary">
-              Simple 3-Step Setup
+      {/* 10. How It Works Steps */}
+      <section className="reveal-on-scroll py-24 bg-muted/10 border-t border-border/60">
+        <div className="max-w-[1400px] mx-auto px-6 sm:px-12">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-[11px] font-mono font-bold tracking-widest text-primary uppercase px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+              HOW IT WORKS
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground mt-4 mb-4">
+              Up and running in 3 simple steps.
             </h2>
-            <p className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Get Up and Running in Minutes
-            </p>
-            <p className="mt-4 text-base text-muted-foreground">
-              Transitioning your team to NexusHR is effortless with our guided onboarding workflow.
-            </p>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {steps.map((step, idx) => (
               <div
-                key={step.number}
-                className={`reveal-on-scroll stagger-${idx + 1} relative rounded-xl border bg-card p-6 shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-300 hover:-translate-y-1`}
+                key={idx}
+                className="relative rounded-2xl border border-border/70 bg-card p-8 shadow-sm transition-all duration-300 hover:border-primary/40"
               >
-                <span className="text-4xl font-black text-primary/20 block mb-2 transition-transform duration-300 hover:scale-110">{step.number}</span>
-                <h3 className="text-lg font-bold text-foreground">{step.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{step.description}</p>
+                <div className="text-3xl font-mono font-black text-primary/30 mb-4">
+                  {step.number}
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2">
+                  {step.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  {step.description}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Practical SaaS Benefits Section with Scroll Reveal */}
-      <section id="benefits" className="py-20 md:py-28">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="reveal-on-scroll">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-primary">
-                Measurable ROI
-              </h2>
-              <p className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-                Built to Save Time, Cut Overhead, and Drive Compliance
-              </p>
-              <p className="mt-4 text-base text-muted-foreground">
-                Our customers consistently report significant reduction in administrative burden and near-zero payroll disputes.
-              </p>
+      {/* 11. Enterprise Trust & Security Bento */}
+      <NeonEnterpriseBento />
 
-              <div className="mt-8 space-y-6">
-                {benefits.map((b) => (
-                  <div key={b.title} className="flex items-start gap-4 group">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 transition-transform group-hover:scale-110">
-                      <CheckCircle2 className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-base text-foreground group-hover:text-primary transition-colors">{b.title}</h4>
-                      <p className="text-sm text-muted-foreground mt-1">{b.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* 12. Final High-Impact Conversion Banner */}
+      <NeonCtaBanner />
 
-            {/* Quick Metrics Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="reveal-on-scroll stagger-1 rounded-2xl border bg-card p-6 shadow-sm flex flex-col justify-between hover:shadow-lg hover:border-primary/40 transition-all duration-300 hover:-translate-y-1">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Admin Time Saved</p>
-                  <p className="text-4xl font-extrabold text-primary mt-2">14 hrs</p>
-                  <p className="text-xs text-muted-foreground mt-1">Per HR professional each week</p>
-                </div>
-                <p className="text-xs text-emerald-600 font-semibold mt-4">↑ 75% efficiency boost</p>
-              </div>
-
-              <div className="reveal-on-scroll stagger-2 rounded-2xl border bg-card p-6 shadow-sm flex flex-col justify-between hover:shadow-lg hover:border-emerald-500/40 transition-all duration-300 hover:-translate-y-1">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Payroll Accuracy</p>
-                  <p className="text-4xl font-extrabold text-emerald-600 mt-2">99.9%</p>
-                  <p className="text-xs text-muted-foreground mt-1">Eliminates calculation discrepancies</p>
-                </div>
-                <p className="text-xs text-muted-foreground font-semibold mt-4">Automated tax tables</p>
-              </div>
-
-              <div className="reveal-on-scroll stagger-3 rounded-2xl border bg-card p-6 shadow-sm flex flex-col justify-between sm:col-span-2 hover:shadow-lg hover:border-primary/40 transition-all duration-300 hover:-translate-y-1">
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Employee Retention</p>
-                  <p className="text-4xl font-extrabold text-foreground mt-2">98.4%</p>
-                  <p className="text-xs text-muted-foreground mt-1">Higher employee satisfaction with transparent PTO and automated payslips</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section with Scroll Reveal */}
-      <section id="pricing" className="py-20 bg-muted/30 border-y">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="reveal-on-scroll text-center max-w-2xl mx-auto">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-primary">
-              Transparent Pricing
-            </h2>
-            <p className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Simple, Predictable Plans for Every Stage
-            </p>
-            <p className="mt-4 text-base text-muted-foreground">
-              All plans include 14-day free trial. Upgrade, downgrade, or cancel anytime.
-            </p>
-          </div>
-
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {pricingTiers.map((tier, idx) => (
-              <div
-                key={tier.name}
-                className={`reveal-on-scroll stagger-${idx + 1} relative rounded-2xl border bg-card p-8 shadow-sm flex flex-col justify-between hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 ${
-                  tier.popular ? "border-primary shadow-xl ring-2 ring-primary/20 lg:-translate-y-2 hover:lg:-translate-y-3.5" : ""
-                }`}
-              >
-                {tier.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-xs font-bold text-primary-foreground shadow-md shadow-primary/30">
-                    MOST POPULAR
-                  </span>
-                )}
-                <div>
-                  <h3 className="text-xl font-bold text-foreground">{tier.name}</h3>
-                  <p className="mt-2 text-xs text-muted-foreground">{tier.description}</p>
-                  <div className="mt-6 flex items-baseline">
-                    <span className="text-4xl font-black text-foreground">{tier.price}</span>
-                    <span className="text-sm text-muted-foreground ml-1">{tier.period}</span>
-                  </div>
-
-                  <div className="mt-8 space-y-3">
-                    {tier.features.map((feat) => (
-                      <div key={feat} className="flex items-center gap-2.5 text-xs text-muted-foreground">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                        <span>{feat}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-4 border-t">
-                  <Link href={tier.href}>
-                    <Button
-                      variant={tier.popular ? "default" : "outline"}
-                      className={`w-full font-semibold transition-all duration-200 ${
-                        tier.popular ? "shadow-md shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02]" : "hover:scale-[1.02]"
-                      }`}
-                    >
-                      {tier.ctaText}
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Final Call To Action with Ambient Neon Glow */}
-      <section className="reveal-on-scroll py-20 md:py-28">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="relative rounded-3xl bg-gradient-to-r from-primary via-indigo-600 to-purple-700 p-8 sm:p-14 text-center text-white shadow-2xl overflow-hidden group">
-            {/* Ambient Background Glow Effect */}
-            <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl transition-transform duration-700 group-hover:scale-150" />
-            <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-indigo-400/20 blur-3xl transition-transform duration-700 group-hover:scale-150" />
-
-            <h2 className="relative text-3xl sm:text-5xl font-extrabold tracking-tight max-w-3xl mx-auto leading-tight">
-              Ready to Modernize Your Workforce Management?
-            </h2>
-            <p className="relative mt-4 text-base sm:text-lg text-white/80 max-w-xl mx-auto font-normal">
-              Join thousands of businesses managing their teams effortlessly with NexusHR.
-            </p>
-            <div className="relative mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/register">
-                <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-bold px-8 shadow-lg transition-transform duration-200 hover:scale-105 active:scale-95">
-                  Start Your Free Trial Now
-                </Button>
-              </Link>
-              <Link href="/dashboard">
-                <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 px-8 transition-transform duration-200 hover:scale-105 active:scale-95">
-                  View Live Demo
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t bg-muted/20 py-14 text-sm text-muted-foreground">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-            <div className="col-span-2">
-              <Link href="/" className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Sparkles className="h-4 w-4" />
-                </div>
-                <span className="font-bold text-base text-foreground">NexusHR</span>
-              </Link>
-              <p className="mt-3 text-xs text-muted-foreground max-w-sm">
-                Next-generation B2B workforce management SaaS platform designed for high-growth companies.
-              </p>
-              <p className="mt-6 text-xs text-muted-foreground">
-                © {new Date().getFullYear()} NexusHR Inc. All rights reserved.
-              </p>
-            </div>
-
-            <div>
-              <p className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">Product</p>
-              <ul className="space-y-2 text-xs">
-                <li><Link href="/dashboard/employees" className="hover:text-foreground transition-colors">Employees</Link></li>
-                <li><Link href="/dashboard/attendance" className="hover:text-foreground transition-colors">Attendance</Link></li>
-                <li><Link href="/dashboard/leave" className="hover:text-foreground transition-colors">Leave / PTO</Link></li>
-                <li><Link href="/dashboard/payroll" className="hover:text-foreground transition-colors">Payroll Engine</Link></li>
-                <li><Link href="/dashboard/reports" className="hover:text-foreground transition-colors">Analytics</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <p className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">Solutions</p>
-              <ul className="space-y-2 text-xs">
-                <li><a href="#" className="hover:text-foreground transition-colors">Startups</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Mid-market</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Enterprise</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Remote Teams</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <p className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">Company & Legal</p>
-              <ul className="space-y-2 text-xs">
-                <li><a href="#" className="hover:text-foreground transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Security & Compliance</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Contact Support</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* 13. Neon Multi-Column Footer */}
+      <NeonFooter />
     </div>
   );
 }
-

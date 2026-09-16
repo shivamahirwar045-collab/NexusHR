@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { NeonNavbar } from "@/components/landing/NeonNavbar";
+import { NeonFooter } from "@/components/landing/NeonFooter";
 import {
   Check,
   Minus,
@@ -824,88 +825,8 @@ export default function PricingPage() {
         </div>
       )}
 
-      {/* Footer */}
-      <footer className="border-t border-border/80 bg-card py-12 mt-auto">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
-            {/* Col 1: Brand */}
-            <div className="col-span-2 md:col-span-1">
-              <Link href="/" className="flex items-center gap-2 group">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs">
-                  <Sparkles className="h-4 w-4" />
-                </div>
-                <span className="font-bold text-base tracking-tight text-foreground">
-                  NexusHR
-                </span>
-              </Link>
-              <p className="text-xs text-muted-foreground mt-3 leading-relaxed">
-                Modern employee management and serverless Postgres infrastructure.
-              </p>
-            </div>
-
-            {/* Col 2: Product */}
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">
-                Product
-              </p>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li><Link href="/dashboard" className="hover:text-foreground">Postgres DB</Link></li>
-                <li><Link href="/dashboard/employees" className="hover:text-foreground">Auth</Link></li>
-                <li><Link href="/dashboard/attendance" className="hover:text-foreground">Storage</Link></li>
-                <li><Link href="/pricing" className="hover:text-foreground">Pricing</Link></li>
-              </ul>
-            </div>
-
-            {/* Col 3: Solutions */}
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">
-                Solutions
-              </p>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li><Link href="/dashboard" className="hover:text-foreground">Agents</Link></li>
-                <li><Link href="/dashboard" className="hover:text-foreground">Platforms</Link></li>
-                <li><Link href="/dashboard/reports" className="hover:text-foreground">Full-stack Apps</Link></li>
-                <li><Link href="/dashboard/payroll" className="hover:text-foreground">Enterprise</Link></li>
-              </ul>
-            </div>
-
-            {/* Col 4: Resources */}
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">
-                Resources
-              </p>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li><Link href="/dashboard/reports" className="hover:text-foreground">Documentation</Link></li>
-                <li><Link href="/dashboard/reports" className="hover:text-foreground">Blog</Link></li>
-                <li><a href="https://discord.com" target="_blank" rel="noreferrer" className="hover:text-foreground">Community</a></li>
-                <li><a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-foreground">GitHub</a></li>
-              </ul>
-            </div>
-
-            {/* Col 5: Company */}
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3">
-                Company
-              </p>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li><Link href="/dashboard/settings" className="hover:text-foreground">About us</Link></li>
-                <li><Link href="/dashboard/employees" className="hover:text-foreground">Careers</Link></li>
-                <li><Link href="/dashboard/audit-logs" className="hover:text-foreground">Security</Link></li>
-                <li><Link href="/dashboard/settings" className="hover:text-foreground">Contact sales</Link></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between text-xs text-muted-foreground gap-4">
-            <p>© {new Date().getFullYear()} NexusHR. All rights reserved.</p>
-            <div className="flex items-center gap-6">
-              <Link href="/dashboard/audit-logs" className="hover:text-foreground">Privacy Policy</Link>
-              <Link href="/dashboard/audit-logs" className="hover:text-foreground">Terms of Service</Link>
-              <Link href="/dashboard/settings" className="hover:text-foreground">Security</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* Neon-Style Modern Footer */}
+      <NeonFooter />
     </div>
   );
 }
