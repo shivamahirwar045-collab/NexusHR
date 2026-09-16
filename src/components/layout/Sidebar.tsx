@@ -51,10 +51,31 @@ export function Sidebar() {
   } = useApp();
 
   const [postgresExpanded, setPostgresExpanded] = useState(false);
+  const [activeNavItem, setActiveNavItem] = useState<string>("Dashboard");
   const [showConnectModal, setShowConnectModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedInstall, setCopiedInstall] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState("production");
   const [showBranchMenu, setShowBranchMenu] = useState(false);
+  const [showModalBranchMenu, setShowModalBranchMenu] = useState(false);
+  const [connectTab, setConnectTab] = useState("Postgres database");
+  const [storageCodeTab, setStorageCodeTab] = useState<"s3-client.ts" | ".env">("s3-client.ts");
+  const [connectionPooling, setConnectionPooling] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [selectedCompute, setSelectedCompute] = useState("Primary");
+  const [showComputeMenu, setShowComputeMenu] = useState(false);
+  const [selectedDb, setSelectedDb] = useState("neondb");
+  const [showDbMenu, setShowDbMenu] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("neondb_owner");
+  const [showRoleMenu, setShowRoleMenu] = useState(false);
+  const [selectedPgClient, setSelectedPgClient] = useState<
+    "Connection string" | "psql" | "Prisma" | "Drizzle" | "Node.js (pg)" | "Next.js" | "Python (psycopg2)" | "Go"
+  >("Connection string");
+  const [showPgClientMenu, setShowPgClientMenu] = useState(false);
+  const [selectedStorageClient, setSelectedStorageClient] = useState<
+    "S3 client" | "AWS CLI" | "Python (boto3)" | "Go SDK"
+  >("S3 client");
+  const [showStorageClientMenu, setShowStorageClientMenu] = useState(false);
 
   const handleLogout = () => {
     setMobileSidebarOpen(false);
@@ -62,17 +83,105 @@ export function Sidebar() {
     router.push("/login");
   };
 
-  const isLinkActive = (href: string) => {
+  const isLinkActive = (label: string, href: string) => {
+    if (activeNavItem) {
+      return activeNavItem === label;
+    }
     if (href === "/dashboard") {
       return pathname === "/dashboard";
     }
     return pathname.startsWith(href);
   };
 
+  // Close open dropdowns helper
+  const closeAllModalDropdowns = () => {
+    setShowModalBranchMenu(false);
+    setShowComputeMenu(false);
+    setShowDbMenu(false);
+    setShowRoleMenu(false);
+    setShowPgClientMenu(false);
+    setShowStorageClientMenu(false);
+  };
+
+  const getPostgresSnippet = () => {
+    const pwd = showPassword ? "N3xusHr_Secr3t_99!" : "****************";
+    const host = `ep-summer-field-b5ic9ltt${connectionPooling ? "-pooler" : ""}.c-7.us-east-2.aws.neon.tech`;
+    const port = connectionPooling ? "6543" : "5432";
+    const connStr = `postgresql://${selectedRole}:${pwd}@${host}:${port}/${selectedDb}?sslmode=require&channel_binding=require`;
+
+    switch (selectedPgClient) {
+      case "psql":
+        return `psql '${connStr}'`;
+      case "Prisma":
+        return `// .env\nDATABASE_URL="${connStr}"\n\n// prisma/schema.prisma\ndatasource db {\n  provider = "postgresql"\n  url      = env("DATABASE_URL")\n}`;
+      case "Drizzle":
+        return `import { drizzle } from "drizzle-orm/node-postgres";\nimport { Pool } from "pg";\n\nconst pool = new Pool({ connectionString: "${connStr}" });\nexport const db = drizzle(pool);`;
+      case "Node.js (pg)":
+        return `import { Client } from "pg";\n\nconst client = new Client({\n  connectionString: "${connStr}",\n});\nawait client.connect();\nconst res = await client.query("SELECT NOW()");\nconsole.log(res.rows[0]);\nawait client.end();`;
+      case "Next.js":
+        return `import { neon } from "@neondatabase/serverless";\n\nconst sql = neon(process.env.DATABASE_URL!);\nconst response = await sql\`SELECT version()\`;\nconsole.log(response);`;
+      case "Python (psycopg2)":
+        return `import psycopg2\n\nconn = psycopg2.connect("${connStr}")\ncur = conn.cursor()\ncur.execute("SELECT version();")\nprint(cur.fetchone())\ncur.close()\nconn.close()`;
+      case "Go":
+        return `package main\n\nimport (\n  "database/sql"\n  _ "github.com/lib/pq"\n  "log"\n)\n\nfunc main() {\n  db, err := sql.Open("postgres", "${connStr}")\n  if err != nil {\n    log.Fatal(err)\n  }\n  defer db.Close()\n}`;
+      case "Connection string":
+      default:
+        return connStr;
+    }
+  };
+
   const copyConnectionString = () => {
-    navigator.clipboard.writeText("postgresql://alex:nexus_secret_pwd@ep-ancient-hill-123456.us-east-2.aws.neon.tech/nexushr?sslmode=require");
+    const snippet = getPostgresSnippet();
+    navigator.clipboard.writeText(snippet);
     setCopied(true);
-    toast.success("Copied to clipboard", "PostgreSQL connection string copied.");
+    toast.success("Copied to clipboard", `${selectedPgClient} snippet copied.`);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const getStorageInstallCommand = () => {
+    switch (selectedStorageClient) {
+      case "AWS CLI":
+        return "aws --version # requires awscli installed";
+      case "Python (boto3)":
+        return "pip install boto3 python-dotenv";
+      case "Go SDK":
+        return "go get github.com/aws/aws-sdk-go-v2/service/s3";
+      case "S3 client":
+      default:
+        return "npm i @aws-sdk/client-s3 @aws-sdk/s3-request-presigner dotenv";
+    }
+  };
+
+  const copyInstallCommand = () => {
+    navigator.clipboard.writeText(getStorageInstallCommand());
+    setCopiedInstall(true);
+    toast.success("Copied to clipboard", "Install command copied.");
+    setTimeout(() => setCopiedInstall(false), 2000);
+  };
+
+  const getStorageSnippet = () => {
+    if (storageCodeTab === ".env") {
+      return `AWS_ACCESS_KEY_ID=nexus_s3_storage_key_9281\nAWS_SECRET_ACCESS_KEY=nexus_s3_secret_token_882910\nAWS_REGION=us-east-2\nAWS_ENDPOINT_URL=https://storage.neon.tech/v1/nexushr-assets`;
+    }
+
+    switch (selectedStorageClient) {
+      case "AWS CLI":
+        return `# Upload file\naws s3 cp file.txt s3://assets/uploads/file.txt --endpoint-url https://storage.neon.tech/v1/nexushr-assets\n\n# List files\naws s3 ls s3://assets/ --endpoint-url https://storage.neon.tech/v1/nexushr-assets`;
+      case "Python (boto3)":
+        return `import boto3, os\nfrom dotenv import load_dotenv\nload_dotenv()\n\ns3 = boto3.client(\n  's3',\n  endpoint_url=os.getenv('AWS_ENDPOINT_URL'),\n  aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),\n  aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),\n  region_name=os.getenv('AWS_REGION')\n)\ns3.put_object(Bucket='assets', Key='uploads/file.txt', Body=b'Hello World!')`;
+      case "Go SDK":
+        return `package main\n\nimport (\n  "context"\n  "github.com/aws/aws-sdk-go-v2/config"\n  "github.com/aws/aws-sdk-go-v2/service/s3"\n)\n\nfunc main() {\n  cfg, _ := config.LoadDefaultConfig(context.TODO())\n  client := s3.NewFromConfig(cfg)\n  _ = client\n}`;
+      case "S3 client":
+      default:
+        return `import "dotenv/config";\nimport { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";\nimport { getSignedUrl } from "@aws-sdk/s3-request-presigner";\n\nconst s3 = new S3Client({ forcePathStyle: true });\nconst bucket = "assets";\nconst key = "uploads/file.txt";\n\nawait s3.send(new PutObjectCommand({ Bucket: bucket, Key: key, Body: "Hello World!" }));\n\nconst url = await getSignedUrl(s3, new GetObjectCommand({ Bucket: bucket, Key: key }), { expiresIn: 3600 });\nconsole.log(\`[view] \${url}\`);`;
+    }
+  };
+
+  const copyStorageSnippet = () => {
+    const snippet = getStorageSnippet();
+    navigator.clipboard.writeText(snippet);
+    setCopied(true);
+    toast.success("Copied to clipboard", `${storageCodeTab} snippet copied.`);
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -140,9 +249,9 @@ export function Sidebar() {
             onClick={() => setShowConnectModal(true)}
             title={sidebarCollapsed ? "Connect" : undefined}
             className={cn(
-              "w-full h-9 rounded-lg flex items-center justify-center gap-2 font-medium text-xs sm:text-sm transition-all shadow-sm cursor-pointer",
-              "bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-500 dark:text-emerald-400 border border-emerald-500/30",
-              sidebarCollapsed ? "px-0" : "px-3"
+              "w-full h-10 rounded-lg flex items-center justify-center gap-2.5 font-medium text-sm transition-all shadow-xs cursor-pointer",
+              "bg-[#008f5d] hover:bg-[#007b4f] text-white active:scale-[0.98]",
+              sidebarCollapsed ? "px-0" : "px-4"
             )}
           >
             <PlugZap className="h-4 w-4 shrink-0" />
@@ -153,19 +262,22 @@ export function Sidebar() {
         {/* Project Navigation Items */}
         <div className="space-y-0.5">
           {projectItems.map((item) => {
-            const active = isLinkActive(item.href);
+            const active = isLinkActive(item.label, item.href);
             const Icon = item.icon;
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                onClick={() => setMobileSidebarOpen(false)}
+                onClick={() => {
+                  setActiveNavItem(item.label);
+                  setMobileSidebarOpen(false);
+                }}
                 title={sidebarCollapsed ? item.label : undefined}
                 className={cn(
-                  "group flex items-center rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors",
+                  "group flex items-center rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-all duration-100 cursor-pointer select-none",
                   active
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                    : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+                    ? "bg-sidebar-accent text-sidebar-foreground font-semibold shadow-2xs"
+                    : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground active:bg-sidebar-accent/90 active:text-sidebar-foreground active:scale-[0.98]",
                   sidebarCollapsed ? "justify-center" : "gap-3"
                 )}
               >
@@ -190,7 +302,7 @@ export function Sidebar() {
               <button
                 type="button"
                 onClick={() => setShowBranchMenu(!showBranchMenu)}
-                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg border border-sidebar-border bg-sidebar-accent/30 hover:bg-sidebar-accent/60 text-xs font-medium text-sidebar-foreground transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg border border-sidebar-border bg-sidebar-accent/30 hover:bg-sidebar-accent/60 active:bg-sidebar-accent/90 text-xs font-medium text-sidebar-foreground transition-all duration-100 cursor-pointer select-none active:scale-[0.99]"
               >
                 <div className="flex items-center gap-2 truncate">
                   <GitBranch className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
@@ -211,7 +323,7 @@ export function Sidebar() {
                         toast.info("Branch Switched", `Active branch changed to ${b}`);
                       }}
                       className={cn(
-                        "w-full text-left px-3 py-1.5 hover:bg-muted transition-colors flex items-center justify-between",
+                        "w-full text-left px-3 py-1.5 hover:bg-muted active:bg-muted/80 transition-colors flex items-center justify-between cursor-pointer",
                         selectedBranch === b ? "text-primary font-semibold" : "text-foreground"
                       )}
                     >
@@ -233,19 +345,22 @@ export function Sidebar() {
           {/* Branch Navigation Items */}
           <div className="space-y-0.5">
             {branchItems.map((item) => {
-              const active = pathname === item.href && item.label === "Overview";
+              const active = isLinkActive(item.label, item.href);
               const Icon = item.icon;
               return (
                 <Link
                   key={item.label}
                   href={item.href}
-                  onClick={() => setMobileSidebarOpen(false)}
+                  onClick={() => {
+                    setActiveNavItem(item.label);
+                    setMobileSidebarOpen(false);
+                  }}
                   title={sidebarCollapsed ? item.label : undefined}
                   className={cn(
-                    "group flex items-center rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-colors",
+                    "group flex items-center rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-all duration-100 cursor-pointer select-none",
                     active
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
-                      : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+                      ? "bg-sidebar-accent text-sidebar-foreground font-semibold shadow-2xs"
+                      : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground active:bg-sidebar-accent/90 active:text-sidebar-foreground active:scale-[0.98]",
                     sidebarCollapsed ? "justify-center" : "gap-3"
                   )}
                 >
@@ -269,7 +384,10 @@ export function Sidebar() {
               onClick={() => setPostgresExpanded(!postgresExpanded)}
               title={sidebarCollapsed ? "Postgres database" : undefined}
               className={cn(
-                "w-full flex items-center rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-colors cursor-pointer",
+                "w-full flex items-center rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-all duration-100 cursor-pointer select-none",
+                postgresExpanded
+                  ? "text-sidebar-foreground hover:bg-sidebar-accent/60 active:bg-sidebar-accent/90 active:scale-[0.98]"
+                  : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground active:bg-sidebar-accent/90 active:scale-[0.98]",
                 sidebarCollapsed ? "justify-center" : "justify-between"
               )}
             >
@@ -290,13 +408,22 @@ export function Sidebar() {
             {!sidebarCollapsed && postgresExpanded && (
               <div className="pl-6 pr-1 pt-1 space-y-0.5">
                 {postgresSubItems.map((sub) => {
+                  const active = isLinkActive(sub.label, sub.href);
                   const SubIcon = sub.icon;
                   return (
                     <Link
                       key={sub.label}
                       href={sub.href}
-                      onClick={() => setMobileSidebarOpen(false)}
-                      className="flex items-center gap-3 rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-colors"
+                      onClick={() => {
+                        setActiveNavItem(sub.label);
+                        setMobileSidebarOpen(false);
+                      }}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-all duration-100 cursor-pointer select-none",
+                        active
+                          ? "bg-sidebar-accent text-sidebar-foreground font-semibold shadow-2xs"
+                          : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground active:bg-sidebar-accent/90 active:text-sidebar-foreground active:scale-[0.98]"
+                      )}
                     >
                       <SubIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
                       <span>{sub.label}</span>
@@ -309,15 +436,22 @@ export function Sidebar() {
 
           {/* Remaining Resource items */}
           {resourceItems.map((item) => {
+            const active = isLinkActive(item.label, item.href);
             const Icon = item.icon;
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                onClick={() => setMobileSidebarOpen(false)}
+                onClick={() => {
+                  setActiveNavItem(item.label);
+                  setMobileSidebarOpen(false);
+                }}
                 title={sidebarCollapsed ? item.label : undefined}
                 className={cn(
-                  "group flex items-center rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground transition-colors",
+                  "group flex items-center rounded-lg px-2.5 py-1.5 text-[13px] font-medium transition-all duration-100 cursor-pointer select-none",
+                  active
+                    ? "bg-sidebar-accent text-sidebar-foreground font-semibold shadow-2xs"
+                    : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-foreground active:bg-sidebar-accent/90 active:text-sidebar-foreground active:scale-[0.98]",
                   sidebarCollapsed ? "justify-center" : "gap-3"
                 )}
               >
@@ -337,7 +471,7 @@ export function Sidebar() {
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           title={sidebarCollapsed ? "Expand menu" : "Collapse menu"}
           className={cn(
-            "w-full flex items-center rounded-lg px-2.5 py-2 text-[13px] font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors cursor-pointer",
+            "w-full flex items-center rounded-lg px-2.5 py-2 text-[13px] font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground active:bg-sidebar-accent/90 active:scale-[0.98] transition-all duration-100 cursor-pointer select-none",
             sidebarCollapsed ? "justify-center" : "gap-3"
           )}
         >
@@ -357,7 +491,7 @@ export function Sidebar() {
           onClick={handleLogout}
           title={sidebarCollapsed ? "Logout" : undefined}
           className={cn(
-            "w-full flex items-center rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-rose-500/90 hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer",
+            "w-full flex items-center rounded-lg px-2.5 py-1.5 text-[13px] font-medium text-rose-500/90 hover:text-rose-500 hover:bg-rose-500/10 active:bg-rose-500/20 active:scale-[0.98] transition-all duration-100 cursor-pointer select-none",
             sidebarCollapsed ? "justify-center" : "gap-3"
           )}
         >
@@ -366,65 +500,552 @@ export function Sidebar() {
         </Link>
       </div>
 
-      {/* Connect Details Modal */}
+      {/* Connect Details Modal matching exact original screenshot */}
       {showConnectModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-card border border-border rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between mb-4 pb-2 border-b border-border">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                  <PlugZap className="h-4 w-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-foreground text-sm sm:text-base">
-                    Connect to NexusHR Database
-                  </h3>
-                  <p className="text-xs text-muted-foreground">Branch: {selectedBranch}</p>
-                </div>
-              </div>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in-50 duration-150">
+          <div className="bg-card dark:bg-[#13151b] border border-border/80 rounded-2xl max-w-[620px] w-full p-6 sm:p-7 shadow-2xl animate-in zoom-in-95 duration-150 text-foreground relative">
+            {/* Header: Title + Close */}
+            <div className="flex items-center justify-between pb-3 mb-4">
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
+                Connect to your branch
+              </h2>
               <button
+                type="button"
                 onClick={() => setShowConnectModal(false)}
-                className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-muted"
+                className="text-muted-foreground hover:text-foreground p-1 rounded-lg hover:bg-muted transition-colors cursor-pointer"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs font-semibold text-foreground mb-1 block">
-                  Connection String (PostgreSQL URL)
-                </label>
+            {/* Branch Selector */}
+            <div className="relative mb-4">
+              <label className="text-xs font-semibold text-foreground/80 mb-1.5 block">
+                Branch
+              </label>
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !showModalBranchMenu;
+                  closeAllModalDropdowns();
+                  setShowModalBranchMenu(next);
+                }}
+                className="w-full h-10 px-3.5 rounded-lg border border-border/80 bg-background hover:bg-muted/40 transition-colors flex items-center justify-between text-xs sm:text-sm text-foreground cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{selectedBranch}</span>
+                  {selectedBranch === "production" && (
+                    <span className="rounded-full border border-border/80 bg-muted/60 px-2 py-0.5 text-[11px] text-muted-foreground font-normal">
+                      Default
+                    </span>
+                  )}
+                </div>
+                <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", showModalBranchMenu && "rotate-180")} />
+              </button>
+
+              {showModalBranchMenu && (
+                <div className="absolute left-0 right-0 top-full mt-1 bg-card dark:bg-[#181a20] border border-border rounded-lg shadow-xl py-1 z-50 text-xs sm:text-sm">
+                  {[
+                    { name: "production", isDefault: true },
+                    { name: "staging", isDefault: false },
+                    { name: "dev-feature-branch", isDefault: false },
+                  ].map((b) => (
+                    <button
+                      key={b.name}
+                      type="button"
+                      onClick={() => {
+                        setSelectedBranch(b.name);
+                        setShowModalBranchMenu(false);
+                        toast.info("Branch Switched", `Active branch set to ${b.name}`);
+                      }}
+                      className={cn(
+                        "w-full text-left px-3.5 py-2 hover:bg-muted transition-colors flex items-center justify-between cursor-pointer",
+                        selectedBranch === b.name ? "text-primary font-semibold" : "text-foreground"
+                      )}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{b.name}</span>
+                        {b.isDefault && (
+                          <span className="rounded-full border border-border/80 bg-muted/60 px-1.5 py-0.2 text-[10px] text-muted-foreground">
+                            Default
+                          </span>
+                        )}
+                      </div>
+                      {selectedBranch === b.name && <Check className="h-4 w-4 text-primary" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Horizontal Tabs: Postgres database | Storage | Data API | Auth */}
+            <div className="flex items-center gap-6 border-b border-border/80 text-xs sm:text-sm font-medium text-muted-foreground mt-4 mb-5">
+              {[
+                { id: "postgres", label: "Postgres database" },
+                { id: "storage", label: "Storage" },
+                { id: "data_api", label: "Data API" },
+                { id: "auth", label: "Auth" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => {
+                    closeAllModalDropdowns();
+                    setConnectTab(tab.label);
+                  }}
+                  className={cn(
+                    "pb-2.5 transition-colors cursor-pointer relative",
+                    connectTab === tab.label
+                      ? "text-foreground font-semibold border-b-2 border-foreground"
+                      : "hover:text-foreground"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab 1: Postgres database */}
+            {connectTab === "Postgres database" && (
+              <div className="space-y-4">
+                {/* Compute Selection */}
                 <div className="relative">
-                  <pre className="bg-[#0c0d12] border border-border/80 text-emerald-400 p-3 rounded-lg text-xs font-mono overflow-x-auto whitespace-pre-wrap break-all">
-                    postgresql://alex:nexus_secret_pwd@ep-ancient-hill-123456.us-east-2.aws.neon.tech/nexushr?sslmode=require
-                  </pre>
+                  <label className="text-xs font-semibold text-foreground/80 mb-1.5 block">
+                    Compute
+                  </label>
                   <button
-                    onClick={copyConnectionString}
-                    className="absolute top-2 right-2 p-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs flex items-center gap-1 cursor-pointer transition-colors"
+                    type="button"
+                    onClick={() => {
+                      const next = !showComputeMenu;
+                      closeAllModalDropdowns();
+                      setShowComputeMenu(next);
+                    }}
+                    className="w-full h-10 px-3.5 rounded-lg border border-border/80 bg-background hover:bg-muted/40 transition-colors flex items-center justify-between text-xs sm:text-sm text-foreground cursor-pointer"
                   >
-                    {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
-                    <span>{copied ? "Copied" : "Copy"}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{selectedCompute}</span>
+                      <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        Active
+                      </span>
+                    </div>
+                    <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", showComputeMenu && "rotate-180")} />
                   </button>
+
+                  {showComputeMenu && (
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-card dark:bg-[#181a20] border border-border rounded-lg shadow-xl py-1 z-50 text-xs sm:text-sm">
+                      {[
+                        { name: "Primary", status: "Active" },
+                        { name: "Read-replica (us-east-2)", status: "Active" },
+                        { name: "Analytics Compute (0.25 CU)", status: "Idle" },
+                      ].map((c) => (
+                        <button
+                          key={c.name}
+                          type="button"
+                          onClick={() => {
+                            setSelectedCompute(c.name);
+                            setShowComputeMenu(false);
+                            toast.info("Compute Selected", `Switched to ${c.name}`);
+                          }}
+                          className={cn(
+                            "w-full text-left px-3.5 py-2 hover:bg-muted transition-colors flex items-center justify-between cursor-pointer",
+                            selectedCompute === c.name ? "text-primary font-semibold" : "text-foreground"
+                          )}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{c.name}</span>
+                            <span
+                              className={cn(
+                                "text-[10px] px-1.5 py-0.5 rounded-full border font-medium",
+                                c.status === "Active"
+                                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-500"
+                                  : "border-border bg-muted text-muted-foreground"
+                              )}
+                            >
+                              {c.status}
+                            </span>
+                          </div>
+                          {selectedCompute === c.name && <Check className="h-4 w-4 text-primary" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 2-Column Row: Database & Role */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Database */}
+                  <div className="relative">
+                    <label className="text-xs font-semibold text-foreground/80 mb-1.5 block">
+                      Database
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = !showDbMenu;
+                        closeAllModalDropdowns();
+                        setShowDbMenu(next);
+                      }}
+                      className="w-full h-10 px-3.5 rounded-lg border border-border/80 bg-background hover:bg-muted/40 transition-colors flex items-center justify-between text-xs sm:text-sm text-foreground cursor-pointer"
+                    >
+                      <span className="font-medium">{selectedDb}</span>
+                      <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", showDbMenu && "rotate-180")} />
+                    </button>
+
+                    {showDbMenu && (
+                      <div className="absolute left-0 right-0 top-full mt-1 bg-card dark:bg-[#181a20] border border-border rounded-lg shadow-xl py-1 z-50 text-xs sm:text-sm">
+                        {["neondb", "analytics_db", "staging_db", "production_main"].map((db) => (
+                          <button
+                            key={db}
+                            type="button"
+                            onClick={() => {
+                              setSelectedDb(db);
+                              setShowDbMenu(false);
+                              toast.info("Database Selected", `Switched to ${db}`);
+                            }}
+                            className={cn(
+                              "w-full text-left px-3.5 py-2 hover:bg-muted transition-colors flex items-center justify-between cursor-pointer",
+                              selectedDb === db ? "text-primary font-semibold" : "text-foreground"
+                            )}
+                          >
+                            <span>{db}</span>
+                            {selectedDb === db && <Check className="h-4 w-4 text-primary" />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Role */}
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-xs font-semibold text-foreground/80">
+                        Role
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => toast.success("Password Reset", `New credentials for ${selectedRole} copied to clipboard.`)}
+                        className="text-xs text-blue-600 dark:text-blue-400 hover:underline font-normal cursor-pointer"
+                      >
+                        Reset password
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = !showRoleMenu;
+                        closeAllModalDropdowns();
+                        setShowRoleMenu(next);
+                      }}
+                      className="w-full h-10 px-3.5 rounded-lg border border-border/80 bg-background hover:bg-muted/40 transition-colors flex items-center justify-between text-xs sm:text-sm text-foreground cursor-pointer"
+                    >
+                      <span className="font-medium">{selectedRole}</span>
+                      <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform", showRoleMenu && "rotate-180")} />
+                    </button>
+
+                    {showRoleMenu && (
+                      <div className="absolute left-0 right-0 top-full mt-1 bg-card dark:bg-[#181a20] border border-border rounded-lg shadow-xl py-1 z-50 text-xs sm:text-sm">
+                        {["neondb_owner", "authenticated_user", "readonly_role", "service_role"].map((r) => (
+                          <button
+                            key={r}
+                            type="button"
+                            onClick={() => {
+                              setSelectedRole(r);
+                              setShowRoleMenu(false);
+                              toast.info("Role Selected", `Switched to role ${r}`);
+                            }}
+                            className={cn(
+                              "w-full text-left px-3.5 py-2 hover:bg-muted transition-colors flex items-center justify-between cursor-pointer",
+                              selectedRole === r ? "text-primary font-semibold" : "text-foreground"
+                            )}
+                          >
+                            <span>{r}</span>
+                            {selectedRole === r && <Check className="h-4 w-4 text-primary" />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Connection String Header & Connection pooling toggle */}
+                <div className="flex items-center justify-between pt-1 relative">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = !showPgClientMenu;
+                        closeAllModalDropdowns();
+                        setShowPgClientMenu(next);
+                      }}
+                      className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors cursor-pointer"
+                    >
+                      <span>{selectedPgClient}</span>
+                      <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform", showPgClientMenu && "rotate-180")} />
+                    </button>
+
+                    {showPgClientMenu && (
+                      <div className="absolute left-0 top-full mt-1 bg-card dark:bg-[#181a20] border border-border rounded-lg shadow-xl py-1 z-50 w-48 text-xs">
+                        {[
+                          "Connection string",
+                          "psql",
+                          "Prisma",
+                          "Drizzle",
+                          "Node.js (pg)",
+                          "Next.js",
+                          "Python (psycopg2)",
+                          "Go",
+                        ].map((item) => (
+                          <button
+                            key={item}
+                            type="button"
+                            onClick={() => {
+                              setSelectedPgClient(item as any);
+                              setShowPgClientMenu(false);
+                            }}
+                            className={cn(
+                              "w-full text-left px-3 py-1.5 hover:bg-muted transition-colors flex items-center justify-between cursor-pointer",
+                              selectedPgClient === item ? "text-primary font-semibold" : "text-foreground"
+                            )}
+                          >
+                            <span>{item}</span>
+                            {selectedPgClient === item && <Check className="h-3.5 w-3.5 text-primary" />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Toggle Switch: Connection pooling */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setConnectionPooling(!connectionPooling)}
+                      className={cn(
+                        "w-9 h-5 rounded-full transition-colors relative cursor-pointer p-0.5 flex items-center",
+                        connectionPooling ? "bg-emerald-500" : "bg-muted border border-border"
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "w-4 h-4 rounded-full bg-white transition-transform shadow-xs",
+                          connectionPooling ? "translate-x-4" : "translate-x-0"
+                        )}
+                      />
+                    </button>
+                    <span className="text-xs font-medium text-foreground">Connection pooling</span>
+                    <span title="Connection pooling enables scalable serverless queries" className="text-muted-foreground hover:text-foreground cursor-pointer text-xs">
+                      ⓘ
+                    </span>
+                  </div>
+                </div>
+
+                {/* Connection String Code Box with sub-bar inside */}
+                <div className="rounded-xl border border-border/80 bg-muted/20 dark:bg-[#090a0e] overflow-hidden shadow-xs">
+                  <div className="p-4 font-mono text-xs text-foreground/90 leading-relaxed min-h-[50px] max-h-[160px] overflow-y-auto">
+                    <pre className="whitespace-pre-wrap break-all font-mono">
+                      {getPostgresSnippet()}
+                    </pre>
+                  </div>
+
+                  {/* Bottom Actions inside Code Block */}
+                  <div className="flex items-center gap-5 px-4 py-2.5 border-t border-border/80 bg-muted/30 dark:bg-[#0e1017] text-muted-foreground text-xs">
+                    {/* Copy snippet */}
+                    <button
+                      type="button"
+                      onClick={copyConnectionString}
+                      className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 text-emerald-500" />
+                          <span className="text-emerald-500 font-medium">Copied snippet</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3.5 w-3.5" />
+                          <span>Copy snippet</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Show/Hide password */}
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="flex items-center gap-1.5 hover:text-foreground transition-colors cursor-pointer"
+                    >
+                      <span className="h-3.5 w-3.5">👁</span>
+                      <span>{showPassword ? "Hide password" : "Show password"}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
+            )}
 
-              <div className="bg-muted/40 rounded-lg p-3 text-xs text-muted-foreground space-y-1">
-                <p className="font-medium text-foreground">Quick CLI Command:</p>
-                <code className="text-[11px] text-primary block bg-background/80 p-1.5 rounded border border-border font-mono">
-                  psql &quot;postgresql://alex:nexus_secret_pwd@ep-ancient-hill-123456.us-east-2.aws.neon.tech/nexushr?sslmode=require&quot;
-                </code>
+            {/* Tab 2: Storage */}
+            {connectTab === "Storage" && (
+              <div className="space-y-4">
+                {/* S3 Client Dropdown Header */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = !showStorageClientMenu;
+                      closeAllModalDropdowns();
+                      setShowStorageClientMenu(next);
+                    }}
+                    className="flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary transition-colors cursor-pointer"
+                  >
+                    <span>{selectedStorageClient}</span>
+                    <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform", showStorageClientMenu && "rotate-180")} />
+                  </button>
+
+                  {showStorageClientMenu && (
+                    <div className="absolute left-0 top-full mt-1 bg-card dark:bg-[#181a20] border border-border rounded-lg shadow-xl py-1 z-50 w-48 text-xs">
+                      {["S3 client", "AWS CLI", "Python (boto3)", "Go SDK"].map((item) => (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={() => {
+                            setSelectedStorageClient(item as any);
+                            setShowStorageClientMenu(false);
+                          }}
+                          className={cn(
+                            "w-full text-left px-3 py-1.5 hover:bg-muted transition-colors flex items-center justify-between cursor-pointer",
+                            selectedStorageClient === item ? "text-primary font-semibold" : "text-foreground"
+                          )}
+                        >
+                          <span>{item}</span>
+                          {selectedStorageClient === item && <Check className="h-3.5 w-3.5 text-primary" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Install command box */}
+                <div className="rounded-xl border border-border/80 bg-muted/20 dark:bg-[#090a0e] overflow-hidden shadow-xs">
+                  <div className="p-3.5 font-mono text-xs text-foreground/90 leading-relaxed">
+                    <p className="whitespace-pre-wrap break-all">{getStorageInstallCommand()}</p>
+                  </div>
+                  <div className="px-3.5 py-2 border-t border-border/80 bg-muted/30 dark:bg-[#0e1017]">
+                    <button
+                      type="button"
+                      onClick={copyInstallCommand}
+                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    >
+                      {copiedInstall ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 text-emerald-500" />
+                          <span className="text-emerald-500 font-medium">Copied install command</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3.5 w-3.5" />
+                          <span>Copy install command</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* File Code Box (s3-client.ts / .env) */}
+                <div className="rounded-xl border border-border/80 bg-muted/20 dark:bg-[#090a0e] overflow-hidden shadow-xs">
+                  {/* File tabs */}
+                  <div className="flex items-center gap-6 px-4 pt-3 border-b border-border/80 text-xs font-mono">
+                    <button
+                      type="button"
+                      onClick={() => setStorageCodeTab("s3-client.ts")}
+                      className={cn(
+                        "pb-2 transition-colors cursor-pointer font-medium",
+                        storageCodeTab === "s3-client.ts"
+                          ? "text-foreground font-semibold border-b-2 border-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {selectedStorageClient === "Python (boto3)"
+                        ? "s3_client.py"
+                        : selectedStorageClient === "Go SDK"
+                        ? "main.go"
+                        : selectedStorageClient === "AWS CLI"
+                        ? "commands.sh"
+                        : "s3-client.ts"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStorageCodeTab(".env")}
+                      className={cn(
+                        "pb-2 transition-colors cursor-pointer font-medium",
+                        storageCodeTab === ".env"
+                          ? "text-foreground font-semibold border-b-2 border-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      .env
+                    </button>
+                  </div>
+
+                  {/* Code Body */}
+                  <div className="p-4 font-mono text-xs leading-relaxed max-h-[190px] overflow-y-auto">
+                    <pre className="text-foreground/90 whitespace-pre-wrap break-all">
+                      {getStorageSnippet()}
+                    </pre>
+                  </div>
+
+                  {/* Copy Code snippet bottom bar */}
+                  <div className="px-4 py-2.5 border-t border-border/80 bg-muted/30 dark:bg-[#0e1017]">
+                    <button
+                      type="button"
+                      onClick={copyStorageSnippet}
+                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="h-3.5 w-3.5 text-emerald-500" />
+                          <span className="text-emerald-500 font-medium">Copied snippet</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3.5 w-3.5" />
+                          <span>Copy snippet</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setShowConnectModal(false)}
-                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold text-xs hover:opacity-90 transition-opacity"
-              >
-                Done
-              </button>
-            </div>
+            {/* Tab 3: Data API */}
+            {connectTab === "Data API" && (
+              <div className="py-8 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                The Data API is not enabled on this branch.{" "}
+                <Link
+                  href="/dashboard/attendance"
+                  onClick={() => setShowConnectModal(false)}
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                >
+                  Open the Data API page
+                </Link>{" "}
+                to enable it.
+              </div>
+            )}
+
+            {/* Tab 4: Auth */}
+            {connectTab === "Auth" && (
+              <div className="py-8 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Auth is not enabled on this branch.{" "}
+                <Link
+                  href="/dashboard/employees"
+                  onClick={() => setShowConnectModal(false)}
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                >
+                  Open the Auth page
+                </Link>{" "}
+                to set it up.
+              </div>
+            )}
           </div>
         </div>
       )}
