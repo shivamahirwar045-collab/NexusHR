@@ -217,14 +217,49 @@
   }
 }
 
-@keyframes radar-sweep {
+@keyframes scene-camera {
+  0%, 100% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.015) translate3d(0, -6px, 0);
+  }
+}
+
+@keyframes conduit-flow {
   0% {
-    stroke-dashoffset: 600;
+    stroke-dashoffset: 120;
   }
   100% {
     stroke-dashoffset: 0;
   }
 }
+
+@keyframes laser-glow {
+  0%, 100% {
+    opacity: 0.4;
+    filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.4));
+  }
+  50% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.8));
+  }
+}
+
+.animate-scene-camera {
+  animation: scene-camera 20s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: transform;
+}
+
+.animate-conduit-flow {
+  stroke-dasharray: 8 16;
+  animation: conduit-flow 3s linear infinite;
+}
+
+.animate-laser-glow {
+  animation: laser-glow 4s ease-in-out infinite;
+}
+
 
 .animate-float-slow {
   animation: float-slow 8.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;

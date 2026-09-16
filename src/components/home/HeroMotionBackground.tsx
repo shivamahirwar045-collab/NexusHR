@@ -2,17 +2,14 @@
 
 import React, { useEffect, useRef } from "react";
 
-interface Particle {
+interface Node {
   x: number;
   y: number;
   vx: number;
   vy: number;
   radius: number;
-  baseRadius: number;
   color: string;
   alpha: number;
-  pulseSpeed: number;
-  pulsePhase: number;
 }
 
 export const HeroMotionBackground: React.FC = () => {
@@ -25,49 +22,39 @@ export const HeroMotionBackground: React.FC = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Check prefers-reduced-motion
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) return;
 
     let animationFrameId: number;
     let isVisible = true;
     let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || 800);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || 850);
 
     const mouse = {
       x: -1000,
       y: -1000,
-      radius: 140,
+      radius: 160,
     };
 
-    // Color palette inspired by Neon/developer cloud theme (indigo, violet, cyan, emerald)
+    const isMobile = width < 768;
+    const nodeCount = isMobile ? 18 : 36;
+    const nodes: Node[] = [];
+
     const colors = [
       "rgba(99, 102, 241, ", // Indigo
       "rgba(139, 92, 246, ", // Violet
       "rgba(6, 182, 212, ",  // Cyan
-      "rgba(16, 185, 129, ", // Emerald
     ];
 
-    // Responsive particle count
-    const isMobile = width < 768;
-    const particleCount = isMobile ? 24 : 52;
-    const connectionDistance = isMobile ? 90 : 130;
-
-    const particles: Particle[] = [];
-
-    for (let i = 0; i < particleCount; i++) {
-      const radius = Math.random() * 2 + 1;
-      particles.push({
+    for (let i = 0; i < nodeCount; i++) {
+      nodes.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.45,
-        vy: (Math.random() - 0.5) * 0.45,
-        radius,
-        baseRadius: radius,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        radius: Math.random() * 1.8 + 0.8,
         color: colors[Math.floor(Math.random() * colors.length)],
-        alpha: Math.random() * 0.4 + 0.2,
-        pulseSpeed: Math.random() * 0.02 + 0.01,
-        pulsePhase: Math.random() * Math.PI * 2,
+        alpha: Math.random() * 0.35 + 0.15,
       });
     }
 
@@ -92,24 +79,20 @@ export const HeroMotionBackground: React.FC = () => {
     window.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseleave", handleMouseLeave);
 
-    // Pause animation when hero is offscreen to save battery/CPU
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           isVisible = entry.isIntersecting;
-          if (isVisible) {
-            lastTime = performance.now();
-          }
+          if (isVisible) lastTime = performance.now();
         });
       },
       { threshold: 0.05 }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
+    if (containerRef.current) observer.observe(containerRef.current);
 
     let lastTime = performance.now();
+    let wavePhase = 0;
 
     const render = (time: number) => {
       animationFrameId = requestAnimationFrame(render);
@@ -117,61 +100,61 @@ export const HeroMotionBackground: React.FC = () => {
 
       const dt = Math.min((time - lastTime) / 1000, 0.1);
       lastTime = time;
+      wavePhase += dt * 0.4;
 
       ctx.clearRect(0, 0, width, height);
 
-      // Update and draw particles
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
+      // 1. Draw Volumetric Atmospheric Wave Streams
+      ctx.save();
+      const waveGrad = ctx.createLinearGradient(0, height * 0.3, width, height * 0.7);
+      waveGrad.addColorStop(0, "rgba(99, 102, 241, 0.04)");
+      waveGrad.addColorStop(0.5, "rgba(139, 92, 246, 0.06)");
+      waveGrad.addColorStop(1, "rgba(6, 182, 212, 0.03)");
 
-        // Motion update
+      ctx.fillStyle = waveGrad;
+      ctx.beginPath();
+      ctx.moveTo(0, height * 0.5);
+
+      for (let x = 0; x <= width; x += 30) {
+        const y =
+          height * 0.5 +
+          Math.sin(x * 0.003 + wavePhase) * 45 +
+          Math.cos(x * 0.002 - wavePhase * 0.8) * 30;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(width, height);
+      ctx.lineTo(0, height);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // 2. Draw Connected Data Nodes
+      for (let i = 0; i < nodes.length; i++) {
+        const p = nodes[i];
         p.x += p.vx * 60 * dt;
         p.y += p.vy * 60 * dt;
 
-        // Wrap around bounds
         if (p.x < 0) p.x = width;
         if (p.x > width) p.x = 0;
         if (p.y < 0) p.y = height;
         if (p.y > height) p.y = 0;
 
-        // Pulse glow size
-        p.pulsePhase += p.pulseSpeed;
-        const currentRadius = p.baseRadius + Math.sin(p.pulsePhase) * 0.6;
-
-        // Mouse interaction (gentle proximity push and illumination)
-        const dx = mouse.x - p.x;
-        const dy = mouse.y - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        let extraAlpha = 0;
-
-        if (dist < mouse.radius) {
-          const force = (1 - dist / mouse.radius) * 1.5;
-          p.x -= (dx / dist) * force;
-          p.y -= (dy / dist) * force;
-          extraAlpha = (1 - dist / mouse.radius) * 0.4;
-        }
-
-        // Draw particle node
+        // Draw node
         ctx.beginPath();
-        ctx.arc(p.x, p.y, Math.max(0.5, currentRadius), 0, Math.PI * 2);
-        ctx.fillStyle = `${p.color}${Math.min(1, p.alpha + extraAlpha)})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = `${p.color}0.5)`;
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `${p.color}${p.alpha})`;
         ctx.fill();
-        ctx.shadowBlur = 0; // Reset shadow for line drawing
 
-        // Draw connecting constellation / data-mesh lines
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dist2 = Math.hypot(p.x - p2.x, p.y - p2.y);
-
-          if (dist2 < connectionDistance) {
-            const lineAlpha = (1 - dist2 / connectionDistance) * 0.18;
+        // Connect nearby nodes with delicate lines
+        for (let j = i + 1; j < nodes.length; j++) {
+          const p2 = nodes[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 110) {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(99, 102, 241, ${lineAlpha})`;
-            ctx.lineWidth = 0.75;
+            ctx.strokeStyle = `rgba(99, 102, 241, ${(1 - dist / 110) * 0.12})`;
+            ctx.lineWidth = 0.6;
             ctx.stroke();
           }
         }
@@ -195,22 +178,13 @@ export const HeroMotionBackground: React.FC = () => {
       className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
       aria-hidden="true"
     >
-      {/* Fallback Static SVG Asset for initial load & SEO */}
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-60 dark:opacity-40"
+        className="absolute inset-0 bg-cover bg-center opacity-40 dark:opacity-30"
         style={{ backgroundImage: "url('/animations/hero-network-mesh.svg')" }}
       />
-
-      {/* Interactive 60fps Native Particle & Constellation Canvas */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 h-full w-full opacity-90 transition-opacity duration-1000"
-      />
-
-      {/* Flowing Ambient Data Stream Vector */}
-      <div
-        className="animate-mesh-1 absolute -top-16 left-0 right-0 h-96 w-full opacity-40 mix-blend-screen pointer-events-none bg-no-repeat bg-cover"
-        style={{ backgroundImage: "url('/animations/hero-data-stream.svg')" }}
       />
     </div>
   );
