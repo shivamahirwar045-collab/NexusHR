@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
@@ -52,6 +53,24 @@ export function Header() {
     },
   ]);
   const [isAiThinking, setIsAiThinking] = useState(false);
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Lock body scroll when Ask AI drawer is open so it stays permanently pinned
+  useEffect(() => {
+    if (showAiModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showAiModal]);
 
   // Keyboard shortcut ⌘K / Ctrl+K
   useEffect(() => {
@@ -341,11 +360,11 @@ export function Header() {
       </div>
 
       {/* ========================================================= */}
-      {/* Ask AI Copilot Side-Drawer (Slide-over panel from right) */}
+      {/* Ask AI Copilot Side-Drawer (Portaled directly to document.body) */}
       {/* ========================================================= */}
-      {showAiModal && (
+      {mounted && showAiModal && createPortal(
         <div
-          className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex justify-end animate-in fade-in duration-200"
+          className="fixed inset-0 z-[99999] h-screen w-screen bg-black/60 backdrop-blur-sm flex justify-end animate-in fade-in duration-200"
           onClick={() => setShowAiModal(false)}
         >
           <div
@@ -443,7 +462,8 @@ export function Header() {
             </form>
 
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );
