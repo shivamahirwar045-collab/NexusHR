@@ -251,7 +251,6 @@ export default function LandingPage() {
 
       {/* 12. Final High-Impact Conversion Banner */}
       <NeonCtaBanner />
-
       {/* 13. Neon Multi-Column Footer */}
       <NeonFooter />
     </div>
