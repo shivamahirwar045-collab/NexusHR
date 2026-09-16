@@ -73,7 +73,8 @@ export function Sidebar() {
   ];
 
   const handleLogout = () => {
-    toast.info("Logged Out", "You have been securely signed out.");
+    setMobileSidebarOpen(false);
+    toast.info("Logged Out", "You have been logged out successfully.");
     router.push("/login");
   };
 
@@ -213,17 +214,18 @@ export function Sidebar() {
           );
         })}
 
-        <button
+        <Link
+          href="/login"
           onClick={handleLogout}
-          title={sidebarCollapsed ? "Sign Out" : undefined}
+          title={sidebarCollapsed ? "Logout" : undefined}
           className={cn(
-            "group flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors",
+            "group flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer",
             sidebarCollapsed ? "justify-center" : "gap-3"
           )}
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          {!sidebarCollapsed && <span>Sign Out</span>}
-        </button>
+          {!sidebarCollapsed && <span>Logout</span>}
+        </Link>
 
         {/* Desktop Sidebar Collapse Toggle Button */}
         <div className="hidden md:block pt-3">

@@ -23,6 +23,23 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+function DatabaseCylinder({ active }: { active?: boolean }) {
+  return (
+    <svg
+      width="16"
+      height="18"
+      viewBox="0 0 16 18"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={active ? "text-primary" : "text-muted-foreground/30 dark:text-zinc-700"}
+    >
+      <ellipse cx="8" cy="4" rx="6.5" ry="2.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M1.5 8.5C1.5 10.2 4.5 11 8 11C11.5 11 14.5 10.2 14.5 8.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M1.5 4V13.5C1.5 15.2 4.5 16 8 16C11.5 16 14.5 15.2 14.5 13.5V4" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
 export function NeonNavbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -44,7 +61,7 @@ export function NeonNavbar() {
 
   return (
     <header
-      className="sticky top-0 z-50 w-full bg-background/90 backdrop-blur-md border-b border-border/80 text-foreground transition-colors"
+      className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-md border-b border-border/80 text-foreground transition-colors"
       ref={dropdownRef}
     >
       <div className="max-w-[1400px] mx-auto flex h-16 items-center justify-between px-4 sm:px-8">
@@ -53,13 +70,13 @@ export function NeonNavbar() {
         <div className="flex items-center gap-8">
           {/* Original NexusHR Brand Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md shadow-primary/25 transition-transform group-hover:scale-105">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/25 transition-transform group-hover:scale-105">
               <Sparkles className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-lg tracking-tight text-foreground flex items-center gap-1.5">
                 NexusHR
-                <span className="rounded bg-primary/10 px-1.5 py-0.2 text-[10px] font-bold text-primary">
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-bold text-primary">
                   PRO
                 </span>
               </span>
@@ -71,7 +88,7 @@ export function NeonNavbar() {
             {/* 1. Product Dropdown */}
             <button
               onClick={() => toggleDropdown("product")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-sm ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all text-sm ${
                 activeDropdown === "product"
                   ? "border border-primary bg-primary/10 text-primary font-semibold"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -79,7 +96,7 @@ export function NeonNavbar() {
             >
               <span>Product</span>
               <ChevronDown
-                className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${
+                className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
                   activeDropdown === "product" ? "rotate-180 text-primary" : ""
                 }`}
               />
@@ -88,7 +105,7 @@ export function NeonNavbar() {
             {/* 2. Solutions Dropdown */}
             <button
               onClick={() => toggleDropdown("solutions")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-sm ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all text-sm ${
                 activeDropdown === "solutions"
                   ? "border border-primary bg-primary/10 text-primary font-semibold"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -96,7 +113,7 @@ export function NeonNavbar() {
             >
               <span>Solutions</span>
               <ChevronDown
-                className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${
+                className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
                   activeDropdown === "solutions" ? "rotate-180 text-primary" : ""
                 }`}
               />
@@ -105,23 +122,23 @@ export function NeonNavbar() {
             {/* 3. Docs / Reports Link */}
             <Link
               href="/dashboard/reports"
-              className="px-3 py-1.5 text-muted-foreground hover:text-foreground transition-colors"
+              className="px-3.5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Docs
             </Link>
 
             {/* 4. Pricing Link */}
-            <a
-              href="#pricing"
-              className="px-3 py-1.5 text-muted-foreground hover:text-foreground transition-colors"
+            <Link
+              href="/pricing"
+              className="px-3.5 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Pricing
-            </a>
+            </Link>
 
             {/* 5. Resources Dropdown */}
             <button
               onClick={() => toggleDropdown("resources")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-sm ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg transition-all text-sm ${
                 activeDropdown === "resources"
                   ? "border border-primary bg-primary/10 text-primary font-semibold"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
@@ -129,7 +146,7 @@ export function NeonNavbar() {
             >
               <span>Resources</span>
               <ChevronDown
-                className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${
+                className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
                   activeDropdown === "resources" ? "rotate-180 text-primary" : ""
                 }`}
               />
@@ -138,13 +155,13 @@ export function NeonNavbar() {
         </div>
 
         {/* Right Section: Discord, GitHub, ThemeToggle, Log in, Sign up */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-4 sm:gap-5">
           {/* Discord Link */}
           <a
             href="https://discord.com"
             target="_blank"
             rel="noreferrer"
-            className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
               <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.894a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
@@ -157,7 +174,7 @@ export function NeonNavbar() {
             href="https://github.com/shivamahirwar045-collab/NexusHR"
             target="_blank"
             rel="noreferrer"
-            className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             <Github className="h-4 w-4" />
             <span>23.1k</span>
@@ -168,14 +185,19 @@ export function NeonNavbar() {
 
           {/* Log In Button */}
           <Link href="/login">
-            <Button variant="ghost" size="sm" className="font-semibold text-xs">
+            <Button
+              variant="outline"
+              className="rounded-full border-border/80 dark:border-zinc-700 bg-transparent text-foreground hover:bg-muted/50 font-medium text-sm px-5 h-9 whitespace-nowrap inline-flex items-center justify-center transition-colors"
+            >
               Log in
             </Button>
           </Link>
 
           {/* Sign Up / Launch App Demo Button */}
           <Link href="/register">
-            <Button size="sm" className="font-semibold text-xs shadow-sm shadow-primary/25">
+            <Button
+              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-sm px-5 h-9 whitespace-nowrap inline-flex items-center justify-center shadow-sm shadow-primary/20 transition-colors"
+            >
               Sign up
             </Button>
           </Link>
@@ -295,19 +317,65 @@ export function NeonNavbar() {
               </div>
             </div>
 
-            {/* Column 3: Featured Visual Banner Card */}
+            {/* Column 3: Featured Visual Banner Card (Translucent Theme-Aligned Dot Matrix) */}
             <div className="flex flex-col justify-end">
               <Link
                 href="/dashboard"
                 onClick={() => setActiveDropdown(null)}
-                className="relative overflow-hidden rounded-xl border bg-gradient-to-br from-primary/10 via-primary/5 to-muted/40 p-6 h-full min-h-[220px] flex flex-col justify-end group hover:border-primary/60 transition-all shadow-inner"
+                className="relative overflow-hidden rounded-2xl border border-border/50 dark:border-border/30 bg-transparent hover:bg-primary/[0.02] dark:hover:bg-white/[0.02] p-6 h-full min-h-[260px] flex flex-col justify-end group hover:border-primary/40 dark:hover:border-primary/40 transition-all duration-300"
               >
+                {/* 1. Base Dot Matrix Grid (Delicate Transparent) */}
+                <div
+                  className="absolute inset-0 opacity-15 dark:opacity-20 pointer-events-none"
+                  style={{
+                    backgroundImage: `radial-gradient(rgba(99, 102, 241, 0.35) 1px, transparent 1px)`,
+                    backgroundSize: "8px 8px",
+                  }}
+                />
+
+                {/* 2. Top-Left Primary Indigo Glow (Soft Subtle Transparent) */}
+                <div
+                  className="block dark:hidden absolute inset-0 pointer-events-none"
+                  style={{
+                    background: "radial-gradient(ellipse 70% 60% at 20% 15%, rgba(99, 102, 241, 0.08), rgba(79, 70, 229, 0.02) 50%, transparent 75%)",
+                  }}
+                />
+                {/* 2. Top-Left Primary Indigo Glow (Dark Mode Transparent) */}
+                <div
+                  className="hidden dark:block absolute inset-0 pointer-events-none"
+                  style={{
+                    background: "radial-gradient(ellipse 70% 60% at 20% 15%, rgba(99, 102, 241, 0.22), rgba(79, 70, 229, 0.06) 45%, transparent 75%)",
+                  }}
+                />
+
+                {/* 3. Top-Right Violet/Purple Glow (Soft Subtle Transparent) */}
+                <div
+                  className="block dark:hidden absolute inset-0 pointer-events-none"
+                  style={{
+                    background: "radial-gradient(ellipse 75% 65% at 88% 22%, rgba(168, 85, 247, 0.09), rgba(59, 130, 246, 0.02) 50%, transparent 75%)",
+                  }}
+                />
+                {/* 3. Top-Right Violet Glow (Dark Mode Transparent) */}
+                <div
+                  className="hidden dark:block absolute inset-0 pointer-events-none"
+                  style={{
+                    background: "radial-gradient(ellipse 75% 65% at 88% 25%, rgba(168, 85, 247, 0.25), rgba(59, 130, 246, 0.08) 45%, transparent 75%)",
+                  }}
+                />
+
+                {/* 4. Translucent Bottom Fade */}
+                <div
+                  className="absolute inset-0 pointer-events-none bg-gradient-to-t from-background/20 to-transparent"
+                />
+
+                {/* 5. Clean Typography */}
                 <div className="relative z-10">
-                  <h4 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                    What is NexusHR
+                  <h4 className="text-xl font-extrabold text-foreground dark:text-white tracking-tight group-hover:text-primary transition-colors flex items-center gap-1.5">
+                    <span>What is Neon</span>
+                    <ArrowRight className="w-5 h-5 opacity-0 -translate-x-1.5 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
                   </h4>
-                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                    Built around Lakebase Postgres & Next-Gen Workforce Architecture
+                  <p className="text-xs text-muted-foreground dark:text-[#a1a1aa] mt-1.5 leading-relaxed font-normal">
+                    Built around Lakebase Postgres, by Databricks
                   </p>
                 </div>
               </Link>
@@ -381,19 +449,29 @@ export function NeonNavbar() {
                   className="rounded-xl border bg-muted/30 hover:border-primary/60 p-5 flex items-center justify-between group transition-all"
                 >
                   <div>
-                    <h4 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
-                      Agents
+                    <h4 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
+                      <span>Agents</span>
+                      <ArrowRight className="w-4 h-4 opacity-0 -translate-x-1.5 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1 max-w-xs">
                       Infra for app-generation agents like Replit & v0
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 bg-card border rounded-lg p-2.5 shadow-sm">
-                    <span className="text-[10px] font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded">AI</span>
-                    <div className="flex flex-col gap-1">
-                      <div className="w-4 h-1.5 bg-primary rounded" />
-                      <div className="w-4 h-1.5 bg-muted rounded" />
-                      <div className="w-4 h-1.5 bg-muted rounded" />
+                  <div className="flex items-center gap-2 pl-4 shrink-0">
+                    <div className="w-8 h-8 rounded-lg border border-border/80 dark:border-zinc-700 bg-background/50 dark:bg-zinc-900 flex items-center justify-center shadow-xs">
+                      <span className="text-[11px] font-medium text-foreground dark:text-white">AI</span>
+                    </div>
+                    <svg width="20" height="60" viewBox="0 0 20 60" fill="none" className="text-muted-foreground/40 dark:text-zinc-700">
+                      <path d="M0 30H10" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M10 10V50" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M10 10H20" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M10 30H20" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M10 50H20" stroke="currentColor" strokeWidth="1.5" />
+                    </svg>
+                    <div className="flex flex-col gap-1 items-center">
+                      <DatabaseCylinder active />
+                      <DatabaseCylinder />
+                      <DatabaseCylinder />
                     </div>
                   </div>
                 </Link>
@@ -405,22 +483,26 @@ export function NeonNavbar() {
                   className="rounded-xl border bg-muted/30 hover:border-primary/60 p-5 flex items-center justify-between group transition-all"
                 >
                   <div>
-                    <h4 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
-                      Platforms
+                    <h4 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
+                      <span>Platforms</span>
+                      <ArrowRight className="w-4 h-4 opacity-0 -translate-x-1.5 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
                     </h4>
                     <p className="text-xs text-muted-foreground mt-1 max-w-xs">
                       Deploy isolated backends for your end users
                     </p>
                   </div>
-                  <div className="flex flex-col gap-1 bg-card border rounded-lg p-2.5 shadow-sm">
-                    <div className="flex gap-1">
-                      <div className="w-3 h-2 bg-primary rounded-sm" />
-                      <div className="w-3 h-2 bg-primary rounded-sm" />
-                    </div>
-                    <div className="flex gap-1">
-                      <div className="w-3 h-2 bg-muted rounded-sm" />
-                      <div className="w-3 h-2 bg-muted rounded-sm" />
-                    </div>
+                  <div className="grid grid-cols-3 gap-x-3 gap-y-1 pl-4 shrink-0">
+                    <DatabaseCylinder />
+                    <DatabaseCylinder active />
+                    <DatabaseCylinder />
+
+                    <DatabaseCylinder active />
+                    <DatabaseCylinder />
+                    <DatabaseCylinder />
+
+                    <DatabaseCylinder />
+                    <DatabaseCylinder />
+                    <DatabaseCylinder active />
                   </div>
                 </Link>
               </div>
