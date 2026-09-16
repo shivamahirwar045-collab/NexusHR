@@ -20,6 +20,9 @@ import {
   FileText,
   Lock,
   ArrowRight,
+  Bot,
+  Send,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -42,7 +45,44 @@ function DatabaseCylinder({ active }: { active?: boolean }) {
 
 export function NeonNavbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiQuestion, setAiQuestion] = useState("");
+  const [isAiThinking, setIsAiThinking] = useState(false);
+  const [aiResponses, setAiResponses] = useState<Array<{ role: "assistant" | "user"; text: string }>>([
+    {
+      role: "assistant",
+      text: "Hi! I am the NexusHR AI Copilot. Ask me about workforce branch environments, autoscaling limits, multi-state payroll, or SOC2 compliance!",
+    },
+  ]);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleSendAi = (e?: React.FormEvent, customQuery?: string) => {
+    if (e) e.preventDefault();
+    const query = (customQuery || aiQuestion).trim();
+    if (!query) return;
+
+    setAiResponses((prev) => [...prev, { role: "user", text: query }]);
+    setAiQuestion("");
+    setIsAiThinking(true);
+
+    setTimeout(() => {
+      let answer = "NexusHR provides a serverless workforce infrastructure with instant zero-copy database branching, automated multi-state payroll processing, and continuous SOC2 compliance.";
+      const lower = query.toLowerCase();
+
+      if (lower.includes("branch") || lower.includes("environment")) {
+        answer = "Workforce branching uses Copy-on-Write snapshots created in <850ms. You can test payroll simulations or acquisitions on ephemeral branches without affecting live production data.";
+      } else if (lower.includes("payroll") || lower.includes("pay") || lower.includes("salary")) {
+        answer = "The Async Payroll Engine processes 12,000+ employees in under 1.2 seconds across all 50 US states and 14 global currencies with direct deposit API integration.";
+      } else if (lower.includes("scale") || lower.includes("autoscal") || lower.includes("cu")) {
+        answer = "Compute units (CU) scale automatically from 0.25 to 64 CU based on shift clock-ins and payroll run loads. When idle, workers scale to zero to save up to 88% in infrastructure costs.";
+      } else if (lower.includes("soc2") || lower.includes("hipaa") || lower.includes("security") || lower.includes("complian")) {
+        answer = "NexusHR is SOC2 Type II, HIPAA, and ISO 27001 certified with 256-bit AES encryption at rest, TLS 1.3 in transit, and immutable cryptographically signed audit logs.";
+      }
+
+      setAiResponses((prev) => [...prev, { role: "assistant", text: answer }]);
+      setIsAiThinking(false);
+    }, 600);
+  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -182,6 +222,16 @@ export function NeonNavbar() {
 
           {/* Theme Switcher Toggle */}
           <ThemeToggle />
+
+          {/* Ask AI Pill Button */}
+          <button
+            type="button"
+            onClick={() => setShowAiModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold transition-all shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
+            <span>Ask AI</span>
+          </button>
 
           {/* Log In Button */}
           <Link href="/login">
@@ -624,6 +674,103 @@ export function NeonNavbar() {
                 </Link>
               </div>
             </div>
+
+          </div>
+        </div>
+      )}
+      {/* ========================================================= */}
+      {/* Ask AI Side Drawer (Slide-Over Panel) */}
+      {/* ========================================================= */}
+      {showAiModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-card border-l border-border h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-300 text-card-foreground">
+            
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between p-5 border-b border-border bg-muted/20">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-xl bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
+                  <Bot className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-foreground text-sm flex items-center gap-1.5">
+                    NexusHR AI Copilot
+                    <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.2 text-[9px] font-mono font-bold">
+                      LIVE
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground">
+                    Instant answers on architecture, branches & payroll
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAiModal(false)}
+                className="text-muted-foreground hover:text-foreground p-1.5 rounded-lg hover:bg-muted transition-colors cursor-pointer"
+                aria-label="Close Ask AI panel"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Suggested Quick Prompts */}
+            <div className="p-4 border-b border-border/50 bg-background/50 flex flex-wrap gap-2">
+              {[
+                "How do workspace branches work?",
+                "Explain autoscaling to zero",
+                "What are the SOC2 compliance specs?",
+              ].map((prompt, pIdx) => (
+                <button
+                  key={pIdx}
+                  onClick={() => handleSendAi(undefined, prompt)}
+                  className="text-[11px] px-2.5 py-1 rounded-full border border-border bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors text-left cursor-pointer"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+
+            {/* Chat Messages Body */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              {aiResponses.map((res, i) => (
+                <div
+                  key={i}
+                  className={`p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                    res.role === "assistant"
+                      ? "bg-muted/40 text-foreground border border-border/70 mr-4"
+                      : "bg-primary text-primary-foreground ml-6 shadow-md"
+                  }`}
+                >
+                  {res.text}
+                </div>
+              ))}
+              {isAiThinking && (
+                <div className="p-3.5 rounded-2xl bg-muted/40 text-muted-foreground text-xs flex items-center gap-2 border border-border/60">
+                  <Sparkles className="h-4 w-4 animate-spin text-emerald-500" />
+                  <span>Analyzing architecture docs...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Input Form at Bottom */}
+            <form onSubmit={(e) => handleSendAi(e)} className="p-4 border-t border-border bg-card">
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  value={aiQuestion}
+                  onChange={(e) => setAiQuestion(e.target.value)}
+                  placeholder="Ask about queries, branches, or team stats..."
+                  className="w-full h-11 px-4 pr-12 rounded-xl border border-border bg-background text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-inner"
+                />
+                <button
+                  type="submit"
+                  disabled={!aiQuestion.trim() || isAiThinking}
+                  className="absolute right-2 p-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-40 hover:bg-primary/90 transition-all cursor-pointer"
+                  aria-label="Send query"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </form>
 
           </div>
         </div>
