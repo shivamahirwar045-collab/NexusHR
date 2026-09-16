@@ -1,0 +1,20 @@
+<svg width="1440" height="800" viewBox="0 0 1440 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="mesh-glow-1" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.25"/>
+      <stop offset="50%" stop-color="#8b5cf6" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mesh-glow-2" cx="80%" cy="60%" r="50%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#3b82f6" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid-pattern" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="currentColor" stroke-width="1" stroke-opacity="0.05"/>
+    </pattern>
+  </defs>
+  <rect width="1440" height="800" fill="url(#grid-pattern)" />
+  <circle cx="720" cy="260" r="450" fill="url(#mesh-glow-1)" />
+  <circle cx="1150" cy="480" r="380" fill="url(#mesh-glow-2)" />
+</svg>

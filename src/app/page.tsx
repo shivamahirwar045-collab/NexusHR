@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { NeonNavbar } from "@/components/landing/NeonNavbar";
 import {
@@ -22,8 +22,44 @@ import {
   Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HeroMotionBackground } from "@/components/home/HeroMotionBackground";
+import { HeroLiveDashboard } from "@/components/home/HeroLiveDashboard";
 
 export default function LandingPage() {
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
+  const [isHoveringHero, setIsHoveringHero] = useState(false);
+
+  // Scroll reveal observer setup
+  useEffect(() => {
+    const observerCallback: IntersectionObserverCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-revealed");
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -40px 0px",
+    });
+
+    const elements = document.querySelectorAll(".reveal-on-scroll");
+    elements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Smooth mouse move handler for hero parallax and glow follower
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (!heroRef.current) return;
+    const rect = heroRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    setMousePos({ x, y });
+  }, []);
+
   const features = [
     {
       icon: <Users className="h-6 w-6 text-primary" />,
@@ -152,19 +188,59 @@ export default function LandingPage() {
     },
   ];
 
+  // Calculated subtle parallax tilt for hero card
+  const tiltX = isHoveringHero ? (mousePos.y - 0.5) * -6 : 0;
+  const tiltY = isHoveringHero ? (mousePos.x - 0.5) * 6 : 0;
+
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20">
+    <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary/20 overflow-x-hidden">
       {/* Exact Neon Header with Megamenu Dropdowns */}
       <NeonNavbar />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28">
+
+      {/* Hero Section with Cinematic Motion Background */}
+      <section
+        ref={heroRef}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setIsHoveringHero(true)}
+        onMouseLeave={() => setIsHoveringHero(false)}
+        className="relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28"
+      >
+        {/* Neon-Style Cinematic Particle & Constellation Motion Layer */}
+        <HeroMotionBackground />
+
+        {/* Ambient Gradient Mesh Overlays */}
+        <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div
+            className="animate-mesh-1 absolute -top-24 left-1/2 -translate-x-1/2 h-[450px] w-[600px] sm:w-[800px] rounded-full bg-gradient-to-tr from-primary/20 via-indigo-500/15 to-purple-600/20 blur-[100px] dark:from-primary/25 dark:via-indigo-600/20 dark:to-purple-700/25"
+          />
+          <div
+            className="animate-mesh-2 absolute top-1/3 -left-32 h-[380px] w-[450px] rounded-full bg-gradient-to-br from-indigo-500/15 via-blue-500/10 to-teal-500/15 blur-[90px] dark:from-indigo-600/20 dark:to-cyan-500/15"
+          />
+          <div
+            className="animate-mesh-3 absolute top-1/2 -right-32 h-[400px] w-[480px] rounded-full bg-gradient-to-bl from-purple-500/15 via-pink-500/10 to-primary/15 blur-[90px] dark:from-purple-600/20 dark:to-primary/20"
+          />
+
+          {/* Mouse Interactive Ambient Spotlight */}
+          <div
+            className="absolute h-[500px] w-[500px] rounded-full bg-primary/10 blur-[110px] transition-transform duration-700 ease-out dark:bg-primary/15"
+            style={{
+              transform: `translate3d(${mousePos.x * 100}%, ${mousePos.y * 70}%, 0) translate(-50%, -50%)`,
+            }}
+          />
+
+          {/* Subtle Grid Pattern Overlay */}
+          <div
+            className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_35%,#000_70%,transparent_100%)]"
+          />
+        </div>
+
         <div className="container mx-auto px-4 sm:px-6 text-center">
           {/* Badge Announcement */}
-          <div className="inline-flex items-center gap-2 rounded-full border bg-muted/60 px-3.5 py-1 text-xs font-semibold text-foreground mb-6 shadow-sm">
+          <div className="inline-flex items-center gap-2 rounded-full border bg-muted/60 px-3.5 py-1 text-xs font-semibold text-foreground mb-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:bg-muted/90 hover:border-primary/30">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             Next-Gen Workforce Management Suite 2.0
-            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5" />
           </div>
 
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl md:text-7xl max-w-4xl mx-auto leading-tight sm:leading-none">
@@ -182,13 +258,13 @@ export default function LandingPage() {
           {/* CTA Buttons */}
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/register">
-              <Button size="lg" className="w-full sm:w-auto font-semibold gap-2 shadow-lg shadow-primary/25 h-12 px-8">
+              <Button size="lg" className="w-full sm:w-auto font-semibold gap-2 shadow-lg shadow-primary/25 h-12 px-8 transition-all duration-300 hover:shadow-primary/40 hover:scale-[1.02] active:scale-98">
                 Start Free Trial
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
             <Link href="/dashboard">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto font-semibold gap-2 h-12 px-8">
+              <Button size="lg" variant="outline" className="w-full sm:w-auto font-semibold gap-2 h-12 px-8 backdrop-blur-sm transition-all duration-300 hover:bg-muted/80 hover:scale-[1.02] active:scale-98">
                 <BarChart3 className="h-4 w-4 text-primary" />
                 Explore Live Demo
               </Button>
@@ -197,121 +273,53 @@ export default function LandingPage() {
 
           {/* Guarantee Badges */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 transition-colors hover:text-foreground">
               <CheckCircle2 className="h-4 w-4 text-emerald-500" /> No credit card required
             </span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 transition-colors hover:text-foreground">
               <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Instant 2-minute setup
             </span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 transition-colors hover:text-foreground">
               <CheckCircle2 className="h-4 w-4 text-emerald-500" /> SOC2 compliant & encrypted
             </span>
           </div>
 
-          {/* Dashboard Preview Visual */}
-          <div className="mt-14 relative mx-auto max-w-5xl rounded-2xl border bg-card p-3 shadow-2xl ring-1 ring-border/60">
-            <div className="rounded-xl border bg-background/50 overflow-hidden text-left p-6 sm:p-8 space-y-6">
-              {/* Header preview mock */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-5">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold text-foreground">NexusTech Workforce Dashboard</h2>
-                    <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                      Live Pulse
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Real-time attendance, leave requests, and payroll summary
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Link href="/dashboard">
-                    <Button size="sm" className="text-xs">
-                      Open Full Screen View
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-
-              {/* Stat Cards Grid Preview */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="rounded-lg border bg-card p-4 shadow-sm">
-                  <p className="text-xs text-muted-foreground font-medium">Total Headcount</p>
-                  <p className="text-2xl font-bold mt-1 text-foreground">149</p>
-                  <p className="text-[11px] text-emerald-600 font-semibold mt-1">↑ +12% this quarter</p>
-                </div>
-                <div className="rounded-lg border bg-card p-4 shadow-sm">
-                  <p className="text-xs text-muted-foreground font-medium">Present Today</p>
-                  <p className="text-2xl font-bold mt-1 text-foreground">141</p>
-                  <p className="text-[11px] text-muted-foreground mt-1">94.6% attendance rate</p>
-                </div>
-                <div className="rounded-lg border bg-card p-4 shadow-sm">
-                  <p className="text-xs text-muted-foreground font-medium">Pending Approvals</p>
-                  <p className="text-2xl font-bold mt-1 text-amber-600">3</p>
-                  <p className="text-[11px] text-muted-foreground mt-1">2 leave, 1 payroll batch</p>
-                </div>
-                <div className="rounded-lg border bg-card p-4 shadow-sm">
-                  <p className="text-xs text-muted-foreground font-medium">Monthly Payroll</p>
-                  <p className="text-2xl font-bold mt-1 text-foreground">$146,800</p>
-                  <p className="text-[11px] text-emerald-600 font-semibold mt-1">Disbursed on time</p>
-                </div>
-              </div>
-
-              {/* Sample Activity Feed */}
-              <div className="rounded-lg border bg-muted/20 p-4">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  Recent Platform Activity
-                </p>
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between border-b pb-2">
-                    <span className="font-medium text-foreground">
-                      Sarah Jenkins approved 5 days Annual Leave for Priya Patel
-                    </span>
-                    <span className="text-muted-foreground text-[11px]">10m ago</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-foreground">
-                      September 2026 direct deposit payroll generated ($146,800)
-                    </span>
-                    <span className="text-muted-foreground text-[11px]">1h ago</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Living Dashboard Preview Visual with 3D Float, Live Telemetry Wave, and Indicators */}
+          <HeroLiveDashboard tiltX={tiltX} tiltY={tiltY} />
         </div>
       </section>
 
-      {/* Trusted By Section */}
-      <section className="border-y bg-muted/30 py-12">
+
+      {/* Trusted By Section with Scroll Reveal */}
+      <section className="reveal-on-scroll border-y bg-muted/30 py-12 backdrop-blur-sm">
         <div className="container mx-auto px-4 sm:px-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Trusted by forward-thinking HR teams and 500+ modern companies
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-70 grayscale hover:grayscale-0 transition-all">
-            <div className="flex items-center gap-2 text-lg font-bold">
-              <Building className="h-5 w-5" /> ApexGlobal
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+            <div className="flex items-center gap-2 text-lg font-bold transition-transform hover:scale-105">
+              <Building className="h-5 w-5 text-primary" /> ApexGlobal
             </div>
-            <div className="flex items-center gap-2 text-lg font-bold">
-              <Zap className="h-5 w-5" /> PulseLogic
+            <div className="flex items-center gap-2 text-lg font-bold transition-transform hover:scale-105">
+              <Zap className="h-5 w-5 text-amber-500" /> PulseLogic
             </div>
-            <div className="flex items-center gap-2 text-lg font-bold">
-              <Layers className="h-5 w-5" /> HyperScale Labs
+            <div className="flex items-center gap-2 text-lg font-bold transition-transform hover:scale-105">
+              <Layers className="h-5 w-5 text-indigo-500" /> HyperScale Labs
             </div>
-            <div className="flex items-center gap-2 text-lg font-bold">
-              <Lock className="h-5 w-5" /> TrustGuard Inc
+            <div className="flex items-center gap-2 text-lg font-bold transition-transform hover:scale-105">
+              <Lock className="h-5 w-5 text-emerald-500" /> TrustGuard Inc
             </div>
-            <div className="flex items-center gap-2 text-lg font-bold">
-              <Clock className="h-5 w-5" /> ChronoFlow
+            <div className="flex items-center gap-2 text-lg font-bold transition-transform hover:scale-105">
+              <Clock className="h-5 w-5 text-purple-500" /> ChronoFlow
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section id="features" className="py-20 md:py-28">
+      {/* Features Grid with Scroll Reveal */}
+      <section id="features" className="py-20 md:py-28 relative">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-3xl mx-auto">
+          <div className="reveal-on-scroll text-center max-w-3xl mx-auto">
             <h2 className="text-xs font-bold uppercase tracking-widest text-primary">
               Comprehensive Capabilities
             </h2>
@@ -324,15 +332,15 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature) => (
+            {features.map((feature, idx) => (
               <div
                 key={feature.title}
-                className="rounded-xl border bg-card p-6 shadow-sm hover:shadow-md transition-all hover:border-primary/40 group"
+                className={`reveal-on-scroll stagger-${(idx % 3) + 1} rounded-xl border bg-card p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:border-primary/40 hover:-translate-y-1 group`}
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted group-hover:bg-primary/10 transition-colors mb-5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted group-hover:bg-primary/10 transition-colors duration-300 mb-5 group-hover:scale-110">
                   {feature.icon}
                 </div>
-                <h3 className="text-lg font-bold text-foreground">{feature.title}</h3>
+                <h3 className="text-lg font-bold text-foreground transition-colors group-hover:text-primary">{feature.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
                   {feature.description}
                 </p>
@@ -342,8 +350,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section id="how-it-works" className="py-20 bg-muted/30 border-y">
+      {/* How It Works Section with Scroll Reveal */}
+      <section id="how-it-works" className="reveal-on-scroll py-20 bg-muted/30 border-y">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto">
             <h2 className="text-xs font-bold uppercase tracking-widest text-primary">
@@ -358,9 +366,12 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map((step) => (
-              <div key={step.number} className="relative rounded-xl border bg-card p-6 shadow-sm">
-                <span className="text-4xl font-black text-primary/20 block mb-2">{step.number}</span>
+            {steps.map((step, idx) => (
+              <div
+                key={step.number}
+                className={`reveal-on-scroll stagger-${idx + 1} relative rounded-xl border bg-card p-6 shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-300 hover:-translate-y-1`}
+              >
+                <span className="text-4xl font-black text-primary/20 block mb-2 transition-transform duration-300 hover:scale-110">{step.number}</span>
                 <h3 className="text-lg font-bold text-foreground">{step.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{step.description}</p>
               </div>
@@ -369,11 +380,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Practical SaaS Benefits Section */}
+      {/* Practical SaaS Benefits Section with Scroll Reveal */}
       <section id="benefits" className="py-20 md:py-28">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
+            <div className="reveal-on-scroll">
               <h2 className="text-xs font-bold uppercase tracking-widest text-primary">
                 Measurable ROI
               </h2>
@@ -386,12 +397,12 @@ export default function LandingPage() {
 
               <div className="mt-8 space-y-6">
                 {benefits.map((b) => (
-                  <div key={b.title} className="flex items-start gap-4">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600">
+                  <div key={b.title} className="flex items-start gap-4 group">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 transition-transform group-hover:scale-110">
                       <CheckCircle2 className="h-5 w-5" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-base text-foreground">{b.title}</h4>
+                      <h4 className="font-bold text-base text-foreground group-hover:text-primary transition-colors">{b.title}</h4>
                       <p className="text-sm text-muted-foreground mt-1">{b.description}</p>
                     </div>
                   </div>
@@ -401,7 +412,7 @@ export default function LandingPage() {
 
             {/* Quick Metrics Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-2xl border bg-card p-6 shadow-sm flex flex-col justify-between">
+              <div className="reveal-on-scroll stagger-1 rounded-2xl border bg-card p-6 shadow-sm flex flex-col justify-between hover:shadow-lg hover:border-primary/40 transition-all duration-300 hover:-translate-y-1">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Admin Time Saved</p>
                   <p className="text-4xl font-extrabold text-primary mt-2">14 hrs</p>
@@ -410,7 +421,7 @@ export default function LandingPage() {
                 <p className="text-xs text-emerald-600 font-semibold mt-4">↑ 75% efficiency boost</p>
               </div>
 
-              <div className="rounded-2xl border bg-card p-6 shadow-sm flex flex-col justify-between">
+              <div className="reveal-on-scroll stagger-2 rounded-2xl border bg-card p-6 shadow-sm flex flex-col justify-between hover:shadow-lg hover:border-emerald-500/40 transition-all duration-300 hover:-translate-y-1">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Payroll Accuracy</p>
                   <p className="text-4xl font-extrabold text-emerald-600 mt-2">99.9%</p>
@@ -419,7 +430,7 @@ export default function LandingPage() {
                 <p className="text-xs text-muted-foreground font-semibold mt-4">Automated tax tables</p>
               </div>
 
-              <div className="rounded-2xl border bg-card p-6 shadow-sm flex flex-col justify-between sm:col-span-2">
+              <div className="reveal-on-scroll stagger-3 rounded-2xl border bg-card p-6 shadow-sm flex flex-col justify-between sm:col-span-2 hover:shadow-lg hover:border-primary/40 transition-all duration-300 hover:-translate-y-1">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Employee Retention</p>
                   <p className="text-4xl font-extrabold text-foreground mt-2">98.4%</p>
@@ -431,10 +442,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
+      {/* Pricing Section with Scroll Reveal */}
       <section id="pricing" className="py-20 bg-muted/30 border-y">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center max-w-2xl mx-auto">
+          <div className="reveal-on-scroll text-center max-w-2xl mx-auto">
             <h2 className="text-xs font-bold uppercase tracking-widest text-primary">
               Transparent Pricing
             </h2>
@@ -447,15 +458,15 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {pricingTiers.map((tier) => (
+            {pricingTiers.map((tier, idx) => (
               <div
                 key={tier.name}
-                className={`relative rounded-2xl border bg-card p-8 shadow-sm flex flex-col justify-between ${
-                  tier.popular ? "border-primary shadow-xl ring-2 ring-primary/20" : ""
+                className={`reveal-on-scroll stagger-${idx + 1} relative rounded-2xl border bg-card p-8 shadow-sm flex flex-col justify-between hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 ${
+                  tier.popular ? "border-primary shadow-xl ring-2 ring-primary/20 lg:-translate-y-2 hover:lg:-translate-y-3.5" : ""
                 }`}
               >
                 {tier.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-xs font-bold text-primary-foreground">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-xs font-bold text-primary-foreground shadow-md shadow-primary/30">
                     MOST POPULAR
                   </span>
                 )}
@@ -481,7 +492,9 @@ export default function LandingPage() {
                   <Link href={tier.href}>
                     <Button
                       variant={tier.popular ? "default" : "outline"}
-                      className="w-full font-semibold"
+                      className={`w-full font-semibold transition-all duration-200 ${
+                        tier.popular ? "shadow-md shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02]" : "hover:scale-[1.02]"
+                      }`}
                     >
                       {tier.ctaText}
                     </Button>
@@ -493,24 +506,28 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Final Call To Action */}
-      <section className="py-20 md:py-28">
+      {/* Final Call To Action with Ambient Neon Glow */}
+      <section className="reveal-on-scroll py-20 md:py-28">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="rounded-3xl bg-gradient-to-r from-primary via-indigo-600 to-purple-700 p-8 sm:p-14 text-center text-white shadow-2xl">
-            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight max-w-3xl mx-auto leading-tight">
+          <div className="relative rounded-3xl bg-gradient-to-r from-primary via-indigo-600 to-purple-700 p-8 sm:p-14 text-center text-white shadow-2xl overflow-hidden group">
+            {/* Ambient Background Glow Effect */}
+            <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl transition-transform duration-700 group-hover:scale-150" />
+            <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-indigo-400/20 blur-3xl transition-transform duration-700 group-hover:scale-150" />
+
+            <h2 className="relative text-3xl sm:text-5xl font-extrabold tracking-tight max-w-3xl mx-auto leading-tight">
               Ready to Modernize Your Workforce Management?
             </h2>
-            <p className="mt-4 text-base sm:text-lg text-white/80 max-w-xl mx-auto font-normal">
+            <p className="relative mt-4 text-base sm:text-lg text-white/80 max-w-xl mx-auto font-normal">
               Join thousands of businesses managing their teams effortlessly with NexusHR.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="relative mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/register">
-                <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-bold px-8 shadow-lg">
+                <Button size="lg" className="bg-white text-primary hover:bg-white/90 font-bold px-8 shadow-lg transition-transform duration-200 hover:scale-105 active:scale-95">
                   Start Your Free Trial Now
                 </Button>
               </Link>
               <Link href="/dashboard">
-                <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 px-8">
+                <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 px-8 transition-transform duration-200 hover:scale-105 active:scale-95">
                   View Live Demo
                 </Button>
               </Link>
@@ -541,32 +558,32 @@ export default function LandingPage() {
             <div>
               <p className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">Product</p>
               <ul className="space-y-2 text-xs">
-                <li><Link href="/dashboard/employees" className="hover:text-foreground">Employees</Link></li>
-                <li><Link href="/dashboard/attendance" className="hover:text-foreground">Attendance</Link></li>
-                <li><Link href="/dashboard/leave" className="hover:text-foreground">Leave / PTO</Link></li>
-                <li><Link href="/dashboard/payroll" className="hover:text-foreground">Payroll Engine</Link></li>
-                <li><Link href="/dashboard/reports" className="hover:text-foreground">Analytics</Link></li>
+                <li><Link href="/dashboard/employees" className="hover:text-foreground transition-colors">Employees</Link></li>
+                <li><Link href="/dashboard/attendance" className="hover:text-foreground transition-colors">Attendance</Link></li>
+                <li><Link href="/dashboard/leave" className="hover:text-foreground transition-colors">Leave / PTO</Link></li>
+                <li><Link href="/dashboard/payroll" className="hover:text-foreground transition-colors">Payroll Engine</Link></li>
+                <li><Link href="/dashboard/reports" className="hover:text-foreground transition-colors">Analytics</Link></li>
               </ul>
             </div>
 
             <div>
               <p className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">Solutions</p>
               <ul className="space-y-2 text-xs">
-                <li><a href="#" className="hover:text-foreground">Startups</a></li>
-                <li><a href="#" className="hover:text-foreground">Mid-market</a></li>
-                <li><a href="#" className="hover:text-foreground">Enterprise</a></li>
-                <li><a href="#" className="hover:text-foreground">Remote Teams</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Startups</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Mid-market</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Enterprise</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Remote Teams</a></li>
               </ul>
             </div>
 
             <div>
               <p className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">Company & Legal</p>
               <ul className="space-y-2 text-xs">
-                <li><a href="#" className="hover:text-foreground">About Us</a></li>
-                <li><a href="#" className="hover:text-foreground">Security & Compliance</a></li>
-                <li><a href="#" className="hover:text-foreground">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-foreground">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-foreground">Contact Support</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">About Us</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Security & Compliance</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Contact Support</a></li>
               </ul>
             </div>
           </div>
@@ -575,3 +592,4 @@ export default function LandingPage() {
     </div>
   );
 }
+
