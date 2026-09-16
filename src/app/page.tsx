@@ -527,9 +527,12 @@ export default function LandingPage() {
                 </Button>
               </Link>
               <Link href="/dashboard">
-                <Button size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 px-8 transition-transform duration-200 hover:scale-105 active:scale-95">
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-lg h-11 px-8 text-base font-semibold border-2 border-white/80 bg-white/10 hover:bg-white/20 text-white backdrop-blur-md shadow-md transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+                >
                   View Live Demo
-                </Button>
+                </button>
               </Link>
             </div>
           </div>
