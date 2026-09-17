@@ -331,7 +331,54 @@ export function NeonNavbar() {
               )}
             </div>
 
-            {/* 3. Direct Links */}
+            {/* 3. Mobile Resources Accordion */}
+            <div className="rounded-xl border border-border/70 bg-card/40 overflow-hidden">
+              <button
+                onClick={() => toggleMobileSection("resources")}
+                className="w-full flex items-center justify-between p-3.5 text-sm font-semibold text-foreground text-left"
+              >
+                <span>Resources</span>
+                <ChevronDown
+                  className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
+                    mobileSection === "resources" ? "rotate-180 text-primary" : ""
+                  }`}
+                />
+              </button>
+              {mobileSection === "resources" && (
+                <div className="p-3.5 pt-0 border-t border-border/40 space-y-3 bg-muted/10 text-xs">
+                  <Link
+                    href="/dashboard/reports"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-medium text-foreground hover:text-primary py-1"
+                  >
+                    Blog & Guides <span className="text-muted-foreground font-normal block text-[11px]">Technical posts & product updates</span>
+                  </Link>
+                  <Link
+                    href="/dashboard/notifications"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-medium text-foreground hover:text-primary py-1"
+                  >
+                    Changelog <span className="text-muted-foreground font-normal block text-[11px]">Latest platform feature releases</span>
+                  </Link>
+                  <Link
+                    href="/dashboard/settings"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-medium text-foreground hover:text-primary py-1"
+                  >
+                    About Us & Mission <span className="text-muted-foreground font-normal block text-[11px]">The company vision and team</span>
+                  </Link>
+                  <Link
+                    href="/dashboard/employees"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-medium text-foreground hover:text-primary py-1"
+                  >
+                    Careers & Open Roles <span className="text-muted-foreground font-normal block text-[11px]">Join our engineering team</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* 4. Direct Links */}
             <div className="grid grid-cols-2 gap-2">
               <Link
                 href="/pricing"
@@ -349,7 +396,7 @@ export function NeonNavbar() {
               </Link>
             </div>
 
-            {/* 4. Mobile Auth Buttons */}
+            {/* 5. Mobile Auth Buttons */}
             <div className="pt-2 flex flex-col gap-2.5">
               <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
                 <Button className="w-full rounded-xl bg-primary text-primary-foreground font-semibold h-11 shadow-md shadow-primary/20">
