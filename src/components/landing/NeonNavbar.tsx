@@ -190,7 +190,7 @@ export function NeonNavbar() {
 
           {/* GitHub Stars */}
           <a
-            href="https://github.com/shivamahirwar045-collab/NexusHR"
+            href="https://github.com/neondatabase/neon"
             target="_blank"
             rel="noreferrer"
             className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -413,7 +413,7 @@ export function NeonNavbar() {
             {/* 5. Mobile Community Badges */}
             <div className="pt-3 border-t border-border/60 flex items-center justify-around text-xs text-muted-foreground">
               <a
-                href="https://github.com/shivamahirwar045-collab/NexusHR"
+                href="https://github.com/neondatabase/neon"
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-1.5 hover:text-foreground"

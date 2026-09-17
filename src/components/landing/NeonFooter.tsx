@@ -64,7 +64,7 @@ export function NeonFooter() {
 
               {/* GitHub */}
               <a
-                href="https://github.com/shivamahirwar045-collab/NexusHR"
+                href="https://github.com/neondatabase/neon"
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg border border-border/80 bg-muted/30 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
