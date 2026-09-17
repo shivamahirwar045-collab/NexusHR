@@ -436,9 +436,10 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <div className="border border-border rounded-2xl overflow-hidden bg-card shadow-sm">
-          {/* Sticky Header Row */}
-          <div className="grid grid-cols-12 bg-muted/60 border-b border-border py-4 px-6 font-semibold text-xs sm:text-sm text-foreground">
+        <div className="border border-border rounded-2xl overflow-x-auto bg-card shadow-sm">
+          <div className="min-w-[560px]">
+            {/* Sticky Header Row */}
+            <div className="grid grid-cols-12 bg-muted/60 border-b border-border py-4 px-6 font-semibold text-xs sm:text-sm text-foreground">
             <div className="col-span-6 sm:col-span-5 text-muted-foreground uppercase text-[11px] tracking-wider self-center">
               Plan Features
             </div>
@@ -505,7 +506,8 @@ export default function PricingPage() {
                 </div>
               ))}
             </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 

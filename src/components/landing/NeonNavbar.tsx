@@ -20,6 +20,8 @@ import {
   FileText,
   Lock,
   ArrowRight,
+  Menu,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -42,6 +44,8 @@ function DatabaseCylinder({ active }: { active?: boolean }) {
 
 export function NeonNavbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSection, setMobileSection] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -55,8 +59,23 @@ export function NeonNavbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const toggleDropdown = (menu: string) => {
     setActiveDropdown((prev) => (prev === menu ? null : menu));
+  };
+
+  const toggleMobileSection = (section: string) => {
+    setMobileSection((prev) => (prev === section ? null : section));
   };
 
   return (
@@ -70,7 +89,7 @@ export function NeonNavbar() {
         <div className="flex items-center gap-8">
           {/* Original NexusHR Brand Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/25 transition-transform group-hover:scale-105">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/25 transition-transform group-hover:scale-105 shrink-0">
               <Sparkles className="h-5 w-5" />
             </div>
             <div className="flex flex-col">
@@ -154,8 +173,8 @@ export function NeonNavbar() {
           </nav>
         </div>
 
-        {/* Right Section: Discord, GitHub, ThemeToggle, Log in, Sign up */}
-        <div className="flex items-center gap-4 sm:gap-5">
+        {/* Right Section: Discord, GitHub, ThemeToggle, Log in, Sign up, Mobile Menu Trigger */}
+        <div className="flex items-center gap-2.5 sm:gap-4">
           {/* Discord Link */}
           <a
             href="https://discord.com"
@@ -183,26 +202,191 @@ export function NeonNavbar() {
           {/* Theme Switcher Toggle */}
           <ThemeToggle />
 
-          {/* Log In Button */}
-          <Link href="/login">
+          {/* Log In Button - Visible on Tablet and Desktop */}
+          <Link href="/login" className="hidden sm:inline-flex">
             <Button
               variant="outline"
-              className="rounded-full border-border/80 dark:border-zinc-700 bg-transparent text-foreground hover:bg-muted/50 font-medium text-sm px-5 h-9 whitespace-nowrap inline-flex items-center justify-center transition-colors"
+              className="rounded-full border-border/80 dark:border-zinc-700 bg-transparent text-foreground hover:bg-muted/50 font-medium text-sm px-4 sm:px-5 h-9 whitespace-nowrap inline-flex items-center justify-center transition-colors"
             >
               Log in
             </Button>
           </Link>
 
-          {/* Sign Up / Launch App Demo Button */}
-          <Link href="/register">
+          {/* Sign Up Button - Visible on Sm+ */}
+          <Link href="/register" className="hidden sm:inline-flex">
             <Button
-              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-sm px-5 h-9 whitespace-nowrap inline-flex items-center justify-center shadow-sm shadow-primary/20 transition-colors"
+              className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-sm px-4 sm:px-5 h-9 whitespace-nowrap inline-flex items-center justify-center shadow-sm shadow-primary/20 transition-colors"
             >
               Sign up
             </Button>
           </Link>
+
+          {/* Mobile Hamburger Menu Toggle Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2 rounded-xl border border-border/80 bg-muted/30 text-foreground hover:bg-muted/70 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/40"
+            aria-label="Toggle Navigation Menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? (
+              <X className="h-5 w-5 text-foreground" />
+            ) : (
+              <Menu className="h-5 w-5 text-foreground" />
+            )}
+          </button>
         </div>
       </div>
+
+      {/* ========================================================= */}
+      {/* MOBILE NAVIGATION DRAWER */}
+      {/* ========================================================= */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden border-b border-border/80 bg-background/98 backdrop-blur-xl px-4 py-5 shadow-2xl max-h-[calc(100vh-4rem)] overflow-y-auto animate-in slide-in-from-top-2 duration-200">
+          <div className="space-y-4">
+            
+            {/* 1. Mobile Product Accordion */}
+            <div className="rounded-xl border border-border/70 bg-card/40 overflow-hidden">
+              <button
+                onClick={() => toggleMobileSection("product")}
+                className="w-full flex items-center justify-between p-3.5 text-sm font-semibold text-foreground text-left"
+              >
+                <span>Product</span>
+                <ChevronDown
+                  className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
+                    mobileSection === "product" ? "rotate-180 text-primary" : ""
+                  }`}
+                />
+              </button>
+              {mobileSection === "product" && (
+                <div className="p-3.5 pt-0 border-t border-border/40 space-y-3 bg-muted/10 text-xs">
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-medium text-foreground hover:text-primary py-1"
+                  >
+                    Lakebase Postgres <span className="text-muted-foreground font-normal block text-[11px]">Serverless Postgres database</span>
+                  </Link>
+                  <Link
+                    href="/dashboard/employees"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-medium text-foreground hover:text-primary py-1"
+                  >
+                    Workforce Auth & RBAC <span className="text-muted-foreground font-normal block text-[11px]">Role permissions & session security</span>
+                  </Link>
+                  <Link
+                    href="/dashboard/payroll"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-medium text-foreground hover:text-primary py-1"
+                  >
+                    Async Payroll Engine <span className="text-muted-foreground font-normal block text-[11px]">Zero-timeout salary calculation</span>
+                  </Link>
+                  <Link
+                    href="/dashboard/attendance"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-medium text-foreground hover:text-primary py-1"
+                  >
+                    Attendance & PTO Sync <span className="text-muted-foreground font-normal block text-[11px]">Live clock-ins and approvals</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* 2. Mobile Solutions Accordion */}
+            <div className="rounded-xl border border-border/70 bg-card/40 overflow-hidden">
+              <button
+                onClick={() => toggleMobileSection("solutions")}
+                className="w-full flex items-center justify-between p-3.5 text-sm font-semibold text-foreground text-left"
+              >
+                <span>Solutions</span>
+                <ChevronDown
+                  className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
+                    mobileSection === "solutions" ? "rotate-180 text-primary" : ""
+                  }`}
+                />
+              </button>
+              {mobileSection === "solutions" && (
+                <div className="p-3.5 pt-0 border-t border-border/40 space-y-3 bg-muted/10 text-xs">
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-medium text-foreground hover:text-primary py-1"
+                  >
+                    Full-stack HR Apps <span className="text-muted-foreground font-normal block text-[11px]">Deploy enterprise backends</span>
+                  </Link>
+                  <Link
+                    href="/dashboard/leave"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-medium text-foreground hover:text-primary py-1"
+                  >
+                    Branching Workflows <span className="text-muted-foreground font-normal block text-[11px]">Simulate payroll & org changes</span>
+                  </Link>
+                  <Link
+                    href="/dashboard/audit-logs"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-medium text-foreground hover:text-primary py-1"
+                  >
+                    Compliance & Security <span className="text-muted-foreground font-normal block text-[11px]">SOC2 Type II and HIPAA verified</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* 3. Direct Links */}
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                href="/pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-3 text-center rounded-xl border border-border/70 bg-card/40 font-semibold text-sm text-foreground hover:bg-muted/40"
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/dashboard/reports"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-3 text-center rounded-xl border border-border/70 bg-card/40 font-semibold text-sm text-foreground hover:bg-muted/40"
+              >
+                Docs
+              </Link>
+            </div>
+
+            {/* 4. Mobile Auth Buttons */}
+            <div className="pt-2 flex flex-col gap-2.5">
+              <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                <Button className="w-full rounded-xl bg-primary text-primary-foreground font-semibold h-11 shadow-md shadow-primary/20">
+                  Get Started Free
+                </Button>
+              </Link>
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" className="w-full rounded-xl border-border font-medium h-11">
+                  Log In
+                </Button>
+              </Link>
+            </div>
+
+            {/* 5. Mobile Community Badges */}
+            <div className="pt-3 border-t border-border/60 flex items-center justify-around text-xs text-muted-foreground">
+              <a
+                href="https://github.com/shivamahirwar045-collab/NexusHR"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 hover:text-foreground"
+              >
+                <Github className="h-4 w-4" />
+                <span>GitHub 23.1k</span>
+              </a>
+              <a
+                href="https://discord.com"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1.5 hover:text-foreground"
+              >
+                <span>Discord Community</span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* ========================================================= */}
       {/* 1. PRODUCT MEGAMENU DROPDOWN */}

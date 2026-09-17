@@ -119,19 +119,19 @@ ORDER BY p.gross_pay DESC;`,
         <div className="max-w-4xl mx-auto rounded-2xl border border-border/80 bg-zinc-950 shadow-2xl overflow-hidden text-zinc-100 font-mono">
           
           {/* Top Bar with Language Tabs & Copy Button */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900/80">
-            <div className="flex items-center gap-2">
-              <div className="flex space-x-1.5 mr-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 border-b border-zinc-800 bg-zinc-900/80 gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+              <div className="hidden xs:flex space-x-1.5 mr-2 shrink-0">
                 <div className="h-3 w-3 rounded-full bg-red-500/80" />
                 <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
                 <div className="h-3 w-3 rounded-full bg-green-500/80" />
               </div>
 
               {/* Language Switcher Tabs */}
-              <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+              <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800 shrink-0">
                 <button
                   onClick={() => setActiveLang("ts")}
-                  className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+                  className={`px-2.5 sm:px-3 py-1 rounded text-xs font-semibold transition-colors ${
                     activeLang === "ts" ? "bg-primary text-white shadow-xs" : "text-zinc-400 hover:text-white"
                   }`}
                 >
@@ -139,7 +139,7 @@ ORDER BY p.gross_pay DESC;`,
                 </button>
                 <button
                   onClick={() => setActiveLang("py")}
-                  className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+                  className={`px-2.5 sm:px-3 py-1 rounded text-xs font-semibold transition-colors ${
                     activeLang === "py" ? "bg-primary text-white shadow-xs" : "text-zinc-400 hover:text-white"
                   }`}
                 >
@@ -147,7 +147,7 @@ ORDER BY p.gross_pay DESC;`,
                 </button>
                 <button
                   onClick={() => setActiveLang("sql")}
-                  className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+                  className={`px-2.5 sm:px-3 py-1 rounded text-xs font-semibold transition-colors ${
                     activeLang === "sql" ? "bg-primary text-white shadow-xs" : "text-zinc-400 hover:text-white"
                   }`}
                 >
@@ -155,7 +155,7 @@ ORDER BY p.gross_pay DESC;`,
                 </button>
                 <button
                   onClick={() => setActiveLang("curl")}
-                  className={`px-3 py-1 rounded text-xs font-semibold transition-colors ${
+                  className={`px-2.5 sm:px-3 py-1 rounded text-xs font-semibold transition-colors ${
                     activeLang === "curl" ? "bg-primary text-white shadow-xs" : "text-zinc-400 hover:text-white"
                   }`}
                 >
@@ -168,7 +168,7 @@ ORDER BY p.gross_pay DESC;`,
               size="sm"
               variant="ghost"
               onClick={handleCopy}
-              className="h-8 text-xs text-zinc-300 hover:text-white hover:bg-zinc-800"
+              className="h-8 text-xs text-zinc-300 hover:text-white hover:bg-zinc-800 self-end sm:self-auto shrink-0"
             >
               {copied ? (
                 <>

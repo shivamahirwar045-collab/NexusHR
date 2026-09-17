@@ -122,12 +122,12 @@ export default function ReportsPage() {
               </CardTitle>
               <CardDescription>{activeReport.description}</CardDescription>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleExportCSV(activeReport.title)}
-                className="gap-1.5 text-xs"
+                className="gap-1.5 text-xs flex-1 sm:flex-initial"
               >
                 <FileSpreadsheet className="h-3.5 w-3.5" /> Export CSV
               </Button>
@@ -135,7 +135,7 @@ export default function ReportsPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => handleExportPDF(activeReport.title)}
-                className="gap-1.5 text-xs"
+                className="gap-1.5 text-xs flex-1 sm:flex-initial"
               >
                 <FileText className="h-3.5 w-3.5" /> Export PDF
               </Button>
@@ -143,7 +143,7 @@ export default function ReportsPage() {
                 size="sm"
                 onClick={handleGenerate}
                 isLoading={isGenerating}
-                className="gap-1.5 text-xs font-semibold shadow-sm shadow-primary/20"
+                className="gap-1.5 text-xs font-semibold shadow-sm shadow-primary/20 w-full sm:w-auto"
               >
                 <Play className="h-3.5 w-3.5" /> Compile Live Report
               </Button>

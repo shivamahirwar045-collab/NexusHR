@@ -193,7 +193,7 @@ export function NeonBranchingVisualizer() {
               </div>
 
               {/* Time Travel Instant Restore Callout */}
-              <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 flex items-center justify-between gap-4">
+              <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                 <div className="flex items-center gap-3">
                   <RefreshCw className="h-5 w-5 text-emerald-500 shrink-0" />
                   <div>
@@ -203,8 +203,8 @@ export function NeonBranchingVisualizer() {
                     </p>
                   </div>
                 </div>
-                <Link href="/dashboard/audit-logs">
-                  <Button size="sm" variant="outline" className="text-xs whitespace-nowrap border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10">
+                <Link href="/dashboard/audit-logs" className="w-full sm:w-auto">
+                  <Button size="sm" variant="outline" className="w-full sm:w-auto text-xs whitespace-nowrap border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10">
                     Audit Logs
                   </Button>
                 </Link>

@@ -18,6 +18,17 @@ interface HeroLiveDashboardProps {
 
 export const HeroLiveDashboard: React.FC<HeroLiveDashboardProps> = ({ tiltX, tiltY }) => {
   const [pulseTick, setPulseTick] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check for mobile viewport to disable heavy 3D tilt jitter
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Periodic pulse simulating live data flow
   useEffect(() => {
@@ -27,13 +38,16 @@ export const HeroLiveDashboard: React.FC<HeroLiveDashboardProps> = ({ tiltX, til
     return () => clearInterval(interval);
   }, []);
 
+  const safeTiltX = isMobile ? 0 : tiltX;
+  const safeTiltY = isMobile ? 0 : tiltY;
+
   return (
-    <div className="animate-scene-camera mt-14 relative mx-auto max-w-5xl">
+    <div className="animate-scene-camera mt-8 sm:mt-14 relative mx-auto max-w-5xl">
       <div
         className="relative transition-transform duration-700 ease-out"
         style={{
           perspective: 1400,
-          transform: `perspective(1400px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
+          transform: `perspective(1400px) rotateX(${safeTiltX}deg) rotateY(${safeTiltY}deg)`,
         }}
       >
         {/* LAYER 1: Volumetric Atmospheric Glow */}
@@ -143,16 +157,16 @@ export const HeroLiveDashboard: React.FC<HeroLiveDashboardProps> = ({ tiltX, til
           <div className="animate-glass-sheen pointer-events-none absolute inset-0 w-1/3 bg-gradient-to-r from-transparent via-white/15 to-transparent skew-x-[-25deg] -z-0" />
 
           {/* Outer Frame Glass Shell */}
-          <div className="rounded-xl border border-border/80 bg-background/70 backdrop-blur-xl overflow-hidden text-left p-6 sm:p-8 space-y-6 relative z-10">
+          <div className="rounded-xl border border-border/80 bg-background/70 backdrop-blur-xl overflow-hidden text-left p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 relative z-10">
             
             {/* Header Preview Mock */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b pb-4 sm:pb-5">
               <div>
-                <div className="flex items-center gap-2.5">
-                  <h2 className="text-xl font-bold text-foreground tracking-tight">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
                     NexusTech Workforce Dashboard
                   </h2>
-                  <span className="rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 shadow-sm">
+                  <span className="rounded-full bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 text-[11px] sm:text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 shadow-sm">
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -165,9 +179,9 @@ export const HeroLiveDashboard: React.FC<HeroLiveDashboardProps> = ({ tiltX, til
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Link href="/dashboard">
-                  <Button size="sm" className="text-xs font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-md shadow-primary/25 gap-1.5">
-                    Open Full Screen View
+                <Link href="/dashboard" className="w-full sm:w-auto">
+                  <Button size="sm" className="w-full sm:w-auto text-xs font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-md shadow-primary/25 gap-1.5">
+                    Open Full View
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </Button>
                 </Link>
@@ -175,18 +189,18 @@ export const HeroLiveDashboard: React.FC<HeroLiveDashboardProps> = ({ tiltX, til
             </div>
 
             {/* Stat Cards Grid Preview */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
               {/* Stat 1 */}
-              <div className="relative overflow-hidden rounded-xl border bg-card/90 backdrop-blur-md p-4 shadow-sm transition-all duration-300 hover:border-primary/50 hover:-translate-y-0.5 hover:shadow-md group">
+              <div className="relative overflow-hidden rounded-xl border bg-card/90 backdrop-blur-md p-3 sm:p-4 shadow-sm transition-all duration-300 hover:border-primary/50 hover:-translate-y-0.5 hover:shadow-md group">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground font-medium">Total Headcount</p>
-                  <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">Total Headcount</p>
+                  <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shrink-0" />
                 </div>
-                <p className="text-2xl font-bold mt-1 text-foreground">149</p>
-                <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
-                  ↑ +12% this quarter
+                <p className="text-xl sm:text-2xl font-bold mt-1 text-foreground">149</p>
+                <p className="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 truncate">
+                  ↑ +12% this Q
                 </p>
-                <div className="mt-2.5 h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                <div className="mt-2 sm:mt-2.5 h-1.5 w-full bg-muted rounded-full overflow-hidden">
                   <div
                     className="h-full bg-primary rounded-full transition-all duration-1000 ease-in-out shadow-sm shadow-primary/50"
                     style={{ width: `${85 + (pulseTick % 10)}%` }}
@@ -195,14 +209,14 @@ export const HeroLiveDashboard: React.FC<HeroLiveDashboardProps> = ({ tiltX, til
               </div>
 
               {/* Stat 2 */}
-              <div className="relative overflow-hidden rounded-xl border bg-card/90 backdrop-blur-md p-4 shadow-sm transition-all duration-300 hover:border-emerald-500/50 hover:-translate-y-0.5 hover:shadow-md group">
+              <div className="relative overflow-hidden rounded-xl border bg-card/90 backdrop-blur-md p-3 sm:p-4 shadow-sm transition-all duration-300 hover:border-emerald-500/50 hover:-translate-y-0.5 hover:shadow-md group">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground font-medium">Present Today</p>
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">Present Today</p>
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
                 </div>
-                <p className="text-2xl font-bold mt-1 text-foreground">141</p>
-                <p className="text-[11px] text-muted-foreground mt-1">94.6% attendance rate</p>
-                <div className="mt-2.5 h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                <p className="text-xl sm:text-2xl font-bold mt-1 text-foreground">141</p>
+                <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">94.6% rate</p>
+                <div className="mt-2 sm:mt-2.5 h-1.5 w-full bg-muted rounded-full overflow-hidden">
                   <div
                     className="h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-in-out shadow-sm shadow-emerald-500/50"
                     style={{ width: `${92 + (pulseTick % 6)}%` }}
@@ -211,43 +225,43 @@ export const HeroLiveDashboard: React.FC<HeroLiveDashboardProps> = ({ tiltX, til
               </div>
 
               {/* Stat 3 */}
-              <div className="relative overflow-hidden rounded-xl border bg-card/90 backdrop-blur-md p-4 shadow-sm transition-all duration-300 hover:border-amber-500/50 hover:-translate-y-0.5 hover:shadow-md group">
+              <div className="relative overflow-hidden rounded-xl border bg-card/90 backdrop-blur-md p-3 sm:p-4 shadow-sm transition-all duration-300 hover:border-amber-500/50 hover:-translate-y-0.5 hover:shadow-md group">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground font-medium">Pending Approvals</p>
-                  <div className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" />
+                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">Approvals</p>
+                  <div className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping shrink-0" />
                 </div>
-                <p className="text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400">3</p>
-                <p className="text-[11px] text-muted-foreground mt-1">2 leave, 1 payroll batch</p>
-                <div className="mt-2.5 h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                <p className="text-xl sm:text-2xl font-bold mt-1 text-amber-600 dark:text-amber-400">3</p>
+                <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-0.5 truncate">2 leave, 1 pay</p>
+                <div className="mt-2 sm:mt-2.5 h-1.5 w-full bg-muted rounded-full overflow-hidden">
                   <div className="h-full bg-amber-500 rounded-full w-2/5 shadow-sm shadow-amber-500/50" />
                 </div>
               </div>
 
               {/* Stat 4 */}
-              <div className="relative overflow-hidden rounded-xl border bg-card/90 backdrop-blur-md p-4 shadow-sm transition-all duration-300 hover:border-indigo-500/50 hover:-translate-y-0.5 hover:shadow-md group">
+              <div className="relative overflow-hidden rounded-xl border bg-card/90 backdrop-blur-md p-3 sm:p-4 shadow-sm transition-all duration-300 hover:border-indigo-500/50 hover:-translate-y-0.5 hover:shadow-md group">
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground font-medium">Monthly Payroll</p>
-                  <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                  <p className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate">Monthly Pay</p>
+                  <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse shrink-0" />
                 </div>
-                <p className="text-2xl font-bold mt-1 text-foreground">$146,800</p>
-                <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">Disbursed on time</p>
-                <div className="mt-2.5 h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                <p className="text-xl sm:text-2xl font-bold mt-1 text-foreground truncate">$146.8k</p>
+                <p className="text-[10px] sm:text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5 truncate">Disbursed</p>
+                <div className="mt-2 sm:mt-2.5 h-1.5 w-full bg-muted rounded-full overflow-hidden">
                   <div className="h-full bg-indigo-500 rounded-full w-full shadow-sm shadow-indigo-500/50" />
                 </div>
               </div>
             </div>
 
             {/* Real-Time Telemetry Velocity Wave */}
-            <div className="rounded-xl border border-border/80 bg-muted/20 backdrop-blur-md p-4 relative overflow-hidden">
-              <div className="flex items-center justify-between mb-2">
+            <div className="rounded-xl border border-border/80 bg-muted/20 backdrop-blur-md p-3 sm:p-4 relative overflow-hidden">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                 <div className="flex items-center gap-1.5">
-                  <Activity className="h-4 w-4 text-primary animate-pulse" />
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Live Workforce Telemetry & Attendance Velocity
+                  <Activity className="h-4 w-4 text-primary animate-pulse shrink-0" />
+                  <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider truncate">
+                    Workforce Telemetry & Velocity
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono text-emerald-500 flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/25 font-bold">
+                  <span className="text-[10px] sm:text-[11px] font-mono text-emerald-500 flex items-center gap-1.5 bg-emerald-500/10 px-2 sm:px-2.5 py-0.5 rounded-full border border-emerald-500/25 font-bold">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     60 req/s • Real-time Sync
                   </span>

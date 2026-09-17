@@ -53,11 +53,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="h-screen w-full flex flex-col lg:flex-row bg-background text-foreground overflow-hidden">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-background text-foreground">
       {/* ========================================================= */}
       {/* LEFT SECTION: BRAND VISUAL & GLOW MATRIX */}
       {/* ========================================================= */}
-      <div className="hidden lg:flex lg:w-1/2 h-full relative bg-[#060609] text-white flex-col items-center justify-center p-10 overflow-hidden border-r border-border/40">
+      <div className="hidden lg:flex lg:w-1/2 min-h-screen relative bg-[#060609] text-white flex-col items-center justify-center p-10 overflow-hidden border-r border-border/40">
         {/* Subtle dot matrix grid */}
         <div
           className="absolute inset-0 opacity-20 pointer-events-none"
@@ -103,9 +103,9 @@ export default function LoginPage() {
       {/* ========================================================= */}
       {/* RIGHT SECTION: INTERACTIVE LOGIN FORM */}
       {/* ========================================================= */}
-      <div className="flex-1 h-full flex flex-col justify-between p-6 sm:p-8 lg:p-10 relative overflow-y-auto lg:overflow-hidden">
+      <div className="flex-1 min-h-screen flex flex-col justify-between p-4 sm:p-8 lg:p-10 relative overflow-y-auto">
         {/* Top Header: Home Link & Theme Toggle */}
-        <div className="flex items-center justify-between w-full shrink-0">
+        <div className="flex items-center justify-between w-full shrink-0 mb-4 sm:mb-0">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-muted-foreground hover:text-foreground transition-colors group"

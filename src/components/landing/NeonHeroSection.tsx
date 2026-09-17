@@ -133,7 +133,7 @@ export function NeonHeroSection() {
         </div>
 
         {/* Main Headline */}
-        <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-extrabold tracking-tighter text-foreground leading-[1.08] max-w-4xl mb-6">
+        <h1 className="text-3xl sm:text-5xl lg:text-[68px] font-extrabold tracking-tighter text-foreground leading-[1.1] max-w-4xl mb-4 sm:mb-6">
           The workforce platform for modern enterprises,{" "}
           <span className="bg-gradient-to-r from-emerald-500 via-teal-400 to-primary bg-clip-text text-transparent">
             built to scale on NexusHR.
@@ -141,34 +141,107 @@ export function NeonHeroSection() {
         </h1>
 
         {/* Subtitle */}
-        <p className="text-base sm:text-xl text-muted-foreground max-w-2xl leading-relaxed mb-10">
+        <p className="text-sm sm:text-lg lg:text-xl text-muted-foreground max-w-2xl leading-relaxed mb-8 sm:mb-10">
           The all-in-one infrastructure for high-velocity teams. Run employee directories, live attendance sync, multi-state payroll, and AI agents: instant, branchable, and serverless.
         </p>
 
         {/* CTA Button Group */}
-        <div className="flex flex-wrap items-center gap-4 mb-16">
-          <Link href="/dashboard">
-            <Button size="lg" className="rounded-full px-8 h-12 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-12 sm:mb-16">
+          <Link href="/dashboard" className="w-full sm:w-auto">
+            <Button size="lg" className="w-full sm:w-auto rounded-full px-8 h-12 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95">
               Get Started Free
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
 
-          <Link href="/pricing">
-            <Button size="lg" variant="outline" className="rounded-full px-7 h-12 text-sm font-medium border-border/80 hover:bg-muted transition-all">
+          <Link href="/pricing" className="w-full sm:w-auto">
+            <Button size="lg" variant="outline" className="w-full sm:w-auto rounded-full px-7 h-12 text-sm font-medium border-border/80 hover:bg-muted transition-all">
               View Pricing & Plans
             </Button>
           </Link>
 
-          <div className="flex items-center gap-2 text-xs text-muted-foreground ml-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+          <div className="flex items-center gap-2 text-xs text-muted-foreground pt-1 sm:pt-0 sm:ml-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
             <span>No credit card required · Free 14-day enterprise trial</span>
           </div>
         </div>
 
-        {/* Neon-Style 5-Column Interactive Feature Media Grid */}
+        {/* Neon-Style 5-Column Feature Grid (Desktop: 5 cols, Tablet: 2 cols, Mobile: Interactive selector + card preview) */}
         <div className="relative">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* Mobile Tab Pill Selector (< md) */}
+          <div className="flex md:hidden items-center gap-2 overflow-x-auto pb-3 mb-4 no-scrollbar">
+            {heroCards.map((card, idx) => {
+              const isSelected = activeTab === idx;
+              const Icon = card.icon;
+              return (
+                <button
+                  key={card.id}
+                  onClick={() => setActiveTab(idx)}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0 border ${
+                    isSelected
+                      ? "border-primary bg-primary/10 text-primary shadow-sm"
+                      : "border-border/60 bg-card/60 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span>{card.title}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Mobile Active Card Preview (< md) */}
+          <div className="block md:hidden">
+            {(() => {
+              const card = heroCards[activeTab];
+              const Icon = card.icon;
+              return (
+                <div className="relative p-5 rounded-2xl border border-primary/60 bg-card/80 shadow-xl shadow-primary/10 ring-1 ring-primary/30 overflow-hidden">
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-xl bg-primary text-primary-foreground">
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-sm text-foreground">
+                          {card.title}
+                        </h3>
+                        <span className="text-[10px] font-mono font-semibold text-emerald-500">
+                          {card.badge}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-4">
+                    {card.tagline}
+                  </p>
+
+                  <div className="rounded-xl border border-border/60 bg-background/80 p-3 shadow-inner">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold text-foreground">
+                        {card.preview.metric}
+                      </span>
+                      <span className="text-[9px] font-mono text-emerald-500 font-semibold">
+                        {card.preview.subMetric}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {card.preview.details.map((detail, dIdx) => (
+                        <div key={dIdx} className="flex items-center justify-between text-[10px]">
+                          <span className="text-muted-foreground">{detail.label}</span>
+                          <span className="font-mono text-foreground font-medium">{detail.val}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Tablet & Desktop Multi-Column Grid (>= md) */}
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-5 gap-4">
             {heroCards.map((card, idx) => {
               const isSelected = activeTab === idx;
               const Icon = card.icon;

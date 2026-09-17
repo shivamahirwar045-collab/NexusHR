@@ -266,16 +266,17 @@ export function Header() {
       {/* ========================================================= */}
       {/* RIGHT SECTION: Status + Ask AI + Help + Upgrade + Avatar */}
       {/* ========================================================= */}
-      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         {/* Mobile search button */}
         <button
           onClick={() => setGlobalSearchOpen(true)}
           className="md:hidden rounded-lg p-1.5 text-muted-foreground hover:bg-muted"
+          aria-label="Search"
         >
           <Search className="h-4 w-4" />
         </button>
 
-        {/* Status: All OK */}
+        {/* Status: All OK (Visible on desktop) */}
         <div
           onClick={() => toast.success("System Status", "All 12 regional clusters operating normally.")}
           className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border/80 bg-card/60 dark:bg-zinc-900/60 hover:bg-muted/40 text-[11px] font-medium text-foreground transition-colors cursor-pointer"
@@ -285,30 +286,31 @@ export function Header() {
           <span>All OK</span>
         </div>
 
-        {/* Ask AI Pill Button */}
+        {/* Ask AI Button: Compact on Mobile, Full on Sm+ */}
         <button
           type="button"
           onClick={() => setShowAiModal(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-medium transition-colors shadow-2xs cursor-pointer"
+          className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-medium transition-colors shadow-2xs cursor-pointer"
+          title="Ask NexusHR AI Copilot"
         >
           <Sparkles className="h-3.5 w-3.5" />
-          <span>Ask AI</span>
+          <span className="hidden sm:inline">Ask AI</span>
         </button>
 
-        {/* Help Question Mark */}
+        {/* Help Question Mark (Visible on Sm+) */}
         <button
           type="button"
           onClick={() => router.push("/dashboard/settings?tab=help")}
-          className="h-7 w-7 rounded-full border border-border/80 hover:border-border bg-card/60 dark:bg-zinc-900/60 hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground text-xs transition-colors cursor-pointer"
+          className="hidden sm:flex h-7 w-7 rounded-full border border-border/80 hover:border-border bg-card/60 dark:bg-zinc-900/60 hover:bg-muted items-center justify-center text-muted-foreground hover:text-foreground text-xs transition-colors cursor-pointer"
           title="Help & Documentation"
         >
           <HelpCircle className="h-4 w-4" />
         </button>
 
-        {/* Upgrade Button */}
+        {/* Upgrade Button (Visible on Sm+) */}
         <Link
           href="/pricing"
-          className="px-3 py-1 rounded-lg bg-foreground text-background hover:opacity-90 text-xs font-semibold transition-opacity cursor-pointer shadow-2xs"
+          className="hidden sm:inline-block px-3 py-1 rounded-lg bg-foreground text-background hover:opacity-90 text-xs font-semibold transition-opacity cursor-pointer shadow-2xs"
         >
           Upgrade
         </Link>
